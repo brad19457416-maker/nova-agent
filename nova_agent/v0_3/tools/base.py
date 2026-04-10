@@ -62,6 +62,7 @@ class ToolRegistry:
             FileReadTool, FileWriteTool, FileListTool,
             JsonReadTool, JsonWriteTool
         )
+        from .inkcore import InkcoreTool, MockInkcoreTool
         
         self.register(WebSearchTool())
         self.register(WebFetchTool())
@@ -71,6 +72,7 @@ class ToolRegistry:
         self.register(FileListTool())
         self.register(JsonReadTool())
         self.register(JsonWriteTool())
+        self.register(MockInkcoreTool())  # 使用模拟版本，避免依赖外部服务
     
     def register(self, tool: BaseTool):
         """注册工具"""
