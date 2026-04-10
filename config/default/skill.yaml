@@ -1,0 +1,127 @@
+# 技能配置
+
+version: "1.0.0"
+
+# 默认配置
+defaults:
+  metadata:
+    author: NovaTeam
+    license: Apache-2.0
+  
+  config:
+    timeout: 60
+    max_retries: 3
+
+# 技能定义
+skills:
+  research_skill:
+    name: research_skill
+    description: 深度研究技能 - 解决调研死板问题
+    version: "1.0.0"
+    domain: research
+    
+    phases:
+      - name: analyze_task
+        description: 分析任务，确定调研方向
+        tools: [llm]
+      
+      - name: generate_queries
+        description: 生成搜索查询
+        tools: [llm]
+      
+      - name: execute_search
+        description: 执行搜索
+        tools: [web_search, web_fetch]
+      
+      - name: extract_findings
+        description: 提取关键发现
+        tools: [llm]
+    
+    antipatterns:
+      - id: research_001
+        name: 只搜索一次
+        severity: critical
+        keywords: ["搜索一次", "够了", "不需要再搜"]
+        remediation: "应该进行多轮搜索，每次基于上一轮结果扩展查询"
+      
+      - id: research_002
+        name: 不验证准确性
+        severity: critical
+        keywords: ["直接使用", "不需要验证", "应该准确"]
+        remediation: "应该检查多个来源，交叉验证信息准确性"
+      
+      - id: research_003
+        name: 不关联展开
+        severity: major
+        keywords: ["关键词不变", "继续用原来的", "足够了"]
+        remediation: "应该基于结果发现新方向，扩展查询"
+    
+    references:
+      - path: references/research_methodology.md
+        description: 研究方法论
+  
+  writing_skill:
+    name: writing_skill
+    description: 小说写作技能
+    version: "1.0.0"
+    domain: writing
+    
+    phases:
+      - name: analyze_scene
+        description: 分析场景需求
+        tools: [llm]
+      
+      - name: generate_plot
+        description: 生成情节
+        tools: [llm]
+      
+      - name: write_dialogue
+        description: 撰写对话
+        tools: [llm]
+      
+      - name: polish_text
+        description: 打磨文字
+        tools: [llm]
+    
+    antipatterns:
+      - id: writing_001
+        name: 对话过于平淡
+        severity: critical
+        keywords: ["说道", "他说", "她说", "然后"]
+        remediation: "应该为每个角色设计独特的说话方式，增加潜台词"
+      
+      - id: writing_002
+        name: 角色缺乏区分度
+        severity: critical
+        keywords: ["所有角色", "说话一样", "没有区别"]
+        remediation: "应该为每个角色设计语言特征和标志性表达"
+  
+  code_skill:
+    name: code_skill
+    description: 代码开发技能
+    version: "1.0.0"
+    domain: code
+    
+    phases:
+      - name: analyze_requirements
+        description: 分析需求
+        tools: [llm]
+      
+      - name: design_solution
+        description: 设计方案
+        tools: [llm]
+      
+      - name: implement_code
+        description: 实现代码
+        tools: [llm]
+      
+      - name: write_tests
+        description: 编写测试
+        tools: [llm]
+    
+    antipatterns:
+      - id: code_001
+        name: 函数过长
+        severity: major
+        keywords: ["函数太长", "超过100行"]
+        remediation: "应该将长函数拆分为多个小函数"

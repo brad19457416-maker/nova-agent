@@ -1,0 +1,106 @@
+# 工作流配置
+
+version: "1.0.0"
+
+# 默认配置
+defaults:
+  config:
+    max_iterations: 5
+    confidence_threshold: 0.7
+    continue_on_error: true
+    timeout: 300
+  
+  antipatterns: []
+
+# 工作流定义
+workflows:
+  research:
+    name: research
+    description: 深度调研工作流
+    version: "1.0.0"
+    domain: research
+    
+    phases:
+      - clarify
+      - plan
+      - search
+      - expand
+      - verify
+      - synthesize
+      - deliver
+    
+    config:
+      expand_threshold: 0.6
+      max_search_results: 10
+    
+    conditions:
+      expand:
+        - type: confidence
+          threshold: 0.6
+    
+    antipatterns:
+      - "只搜索一次"
+      - "不验证信息准确性"
+    
+    outputs:
+      summary: "调研总结"
+      findings: "关键发现"
+      sources: "信息来源"
+  
+  writing:
+    name: writing
+    description: 小说写作工作流
+    version: "1.0.0"
+    domain: writing
+    
+    phases:
+      - outline
+      - draft
+      - review
+      - revise
+      - polish
+      - deliver
+    
+    config:
+      target_word_count: 4500
+      max_revisions: 3
+      min_quality_score: 0.8
+      continue_on_error: false
+    
+    antipatterns:
+      - "对话过于平淡"
+      - "角色缺乏区分度"
+      - "情节推进缓慢"
+    
+    outputs:
+      title: "章节标题"
+      content: "章节内容"
+      metadata: "章节元数据"
+  
+  code:
+    name: code
+    description: 代码开发工作流
+    version: "1.0.0"
+    domain: code
+    
+    phases:
+      - analyze
+      - design
+      - implement
+      - test
+      - review
+      - deliver
+    
+    config:
+      test_coverage: 0.8
+      max_iterations: 3
+    
+    antipatterns:
+      - "函数过长"
+      - "重复代码"
+      - "硬编码"
+    
+    outputs:
+      code: "代码"
+      tests: "测试代码"
+      docs: "文档"

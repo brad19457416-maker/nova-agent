@@ -1,0 +1,100 @@
+# 反模式配置
+
+# 通用反模式
+general:
+  - id: generic_001
+    name: 过度工程化
+    description: 为简单问题设计复杂解决方案
+    severity: major
+    keywords: ["过度设计", "过度复杂", "不必要的抽象"]
+    remediation: "保持简单，为当前需求设计合适的方案"
+  
+  - id: generic_002
+    name: 复制粘贴
+    description: 重复代码而不是复用
+    severity: major
+    keywords: ["复制", "重复代码", "同样逻辑"]
+    remediation: "提取公共逻辑，避免重复"
+
+# 调研反模式
+research:
+  - id: research_001
+    name: 只搜索一次
+    description: 只进行一轮搜索，不深入挖掘关联信息
+    severity: critical
+    keywords: ["搜索一次", "一个关键词", "足够了"]
+    remediation: "应该进行多轮搜索，每次基于上一轮结果扩展查询"
+  
+  - id: research_002
+    name: 不验证准确性
+    description: 不验证信息来源，不交叉确认
+    severity: critical
+    keywords: ["直接使用", "不需要验证", "应该准确"]
+    remediation: "应该检查多个来源，交叉验证信息准确性"
+  
+  - id: research_003
+    name: 不关联展开
+    description: 不从结果中发现新方向
+    severity: major
+    keywords: ["关键词不变", "继续用原来的", "足够了"]
+    remediation: "应该基于结果发现新方向，扩展查询"
+  
+  - id: research_004
+    name: 策略死板
+    description: 不根据结果调整搜索策略
+    severity: major
+    keywords: ["策略不变", "继续同样的方法"]
+    remediation: "应该根据中间结果动态调整搜索策略"
+
+# 写作反模式
+writing:
+  - id: writing_001
+    name: 对话过于平淡
+    description: 角色对话缺乏特色和白描，没有潜台词
+    severity: critical
+    keywords: ["说道", "他说", "她说", "然后"]
+    remediation: "应该为每个角色设计独特的说话方式，增加潜台词和言外之意"
+  
+  - id: writing_002
+    name: 角色缺乏区分度
+    description: 不同角色说话方式雷同
+    severity: critical
+    keywords: ["所有角色", "说话一样", "没有区别", "雷同"]
+    remediation: "应该为每个角色设计语言特征、标志性表达和口头禅"
+  
+  - id: writing_003
+    name: 情节推进缓慢
+    description: 叙事节奏拖沓，缺乏张力
+    severity: major
+    keywords: ["节奏慢", "拖沓", "缺乏张力"]
+    remediation: "应该保持紧凑节奏，每段都要有推进"
+  
+  - id: writing_004
+    name: 白描不足
+    description: 缺乏动作、表情、环境描写
+    severity: major
+    keywords: ["只有对话", "没有描写", "纯对话"]
+    remediation: "应该增加白描，让读者自己感受情绪"
+
+# 代码反模式
+code:
+  - id: code_001
+    name: 函数过长
+    description: 函数超过100行，难以理解和测试
+    severity: major
+    keywords: ["函数太长", "超过100行", "太长"]
+    remediation: "应该将长函数拆分为多个职责单一的小函数"
+  
+  - id: code_002
+    name: 硬编码
+    description: 将配置值直接写在代码中
+    severity: major
+    keywords: ["硬编码", "直接写死", "写死"]
+    remediation: "应该将配置提取到配置文件或环境变量"
+  
+  - id: code_003
+    name: 重复代码
+    description: 同样的逻辑在多处重复
+    severity: major
+    keywords: ["重复代码", "同样逻辑", "复制粘贴"]
+    remediation: "应该提取公共逻辑到函数或类"
