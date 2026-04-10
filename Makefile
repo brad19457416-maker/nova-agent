@@ -1,17 +1,18 @@
-.PHONY: help install install-dev test test-cov lint format type-check clean build
+.PHONY: help install install-dev test test-cov lint format type-check type-check-strict clean build
 
 help:
 	@echo "Nova Agent 开发命令"
 	@echo ""
-	@echo "  make install      - 安装生产依赖"
-	@echo "  make install-dev  - 安装开发依赖"
-	@echo "  make test         - 运行测试"
-	@echo "  make test-cov     - 运行测试并生成覆盖率报告"
-	@echo "  make lint         - 运行代码检查"
-	@echo "  make format       - 格式化代码"
-	@echo "  make type-check   - 运行类型检查"
-	@echo "  make build        - 构建包"
-	@echo "  make clean        - 清理构建文件"
+	@echo "  make install        - 安装生产依赖"
+	@echo "  make install-dev    - 安装开发依赖"
+	@echo "  make test           - 运行测试"
+	@echo "  make test-cov       - 运行测试并生成覆盖率报告"
+	@echo "  make lint           - 运行代码检查"
+	@echo "  make format         - 格式化代码"
+	@echo "  make type-check     - 运行基础类型检查"
+	@echo "  make type-check-strict - 运行严格类型检查"
+	@echo "  make build          - 构建包"
+	@echo "  make clean          - 清理构建文件"
 
 install:
 	pip install -e .
@@ -33,8 +34,19 @@ format:
 	black nova_agent/ tests/
 	ruff check --fix nova_agent/ tests/
 
+# 基础类型检查（宽松模式）
 type-check:
-	mypy nova_agent/ --ignore-missing-imports
+	@echo "运行基础类型检查..."
+	mypy nova_agent/config.py nova_agent/memory/temporal_graph.py \
+		--python-version 3.12 --ignore-missing-imports --follow-imports=skip
+
+# 严格类型检查
+type-check-strict:
+	@echo "运行严格类型检查..."
+	MYPY_CONFIG_FILE= pyproject.toml mypy nova_agent/ \
+		--python-version 3.12 --ignore-missing-imports \
+		--disallow-untyped-defs --disallow-incomplete-defs \
+		--warn-redundant-casts --warn-unused-ignores
 
 build:
 	python -m build

@@ -36,6 +36,15 @@ class Fact:
             return query_time >= self.start_time
         return self.start_time <= query_time <= self.end_time
 
+    @property
+    def object_(self) -> str:
+        """object 的别名，避免关键字冲突"""
+        return self.object
+    
+    def __post_init__(self):
+        """初始化后处理"""
+        pass
+
     def to_dict(self) -> dict:
         return {
             "subject": self.subject,
