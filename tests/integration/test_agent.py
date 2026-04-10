@@ -55,13 +55,11 @@ class TestNovaAgentIntegration:
         """测试配置进化集成"""
         agent = NovaAgent()
 
-        original_levels = agent.config.max_levels
-
         # 模拟低质量反馈
         agent.config.apply_evolution(quality_score=0.2)
 
-        # 配置应该根据反馈调整
-        assert agent.config.max_levels != original_levels or True  # 可能调整也可能不调整
+        # 配置应该根据反馈调整（可能调整也可能不调整，视策略而定）
+        assert agent.config is not None
 
 
 class TestAgentWorkflows:

@@ -8,7 +8,7 @@ import json
 import logging
 import os
 from dataclasses import asdict, dataclass
-from typing import Any, Dict
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -97,14 +97,14 @@ class Config:
     sandbox_type: str = "local"
     """沙箱类型: local / docker"""
 
-    sandbox_config: Dict[str, Any] = None
+    sandbox_config: dict[str, Any] = None
     """沙箱特定配置"""
 
     # ========== LLM 配置 ==========
     llm_provider: str = "openclaw"
     """LLM 提供者: openclaw / openai / anthropic"""
 
-    llm_config: Dict[str, Any] = None
+    llm_config: dict[str, Any] = None
     """LLM 特定配置（model, api_key 等）"""
 
     max_tokens_per_completion: int = 4096
@@ -167,7 +167,7 @@ class Config:
             wta_max_activate=5,
         )
 
-    def update(self, config: Dict[str, Any]) -> None:
+    def update(self, config: dict[str, Any]) -> None:
         """更新配置，支持部分覆盖"""
         for key, value in config.items():
             if hasattr(self, key):
@@ -175,7 +175,7 @@ class Config:
             else:
                 logger.warning(f"Unknown config key: {key}")
 
-    def apply_evolution(self, quality_score: float) -> Dict[str, Any]:
+    def apply_evolution(self, quality_score: float) -> dict[str, Any]:
         """
         根据质量反馈自主进化调整配置
 
@@ -226,12 +226,12 @@ class Config:
 
         return changes
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Config":
+    def from_dict(cls, data: dict[str, Any]) -> "Config":
         """从字典创建"""
         return cls(**data)
 
@@ -259,7 +259,7 @@ class Config:
         logger.info(f"Config loaded from {path}")
         return config
 
-    def get_evolution_summary(self, original: Dict[str, Any]) -> str:
+    def get_evolution_summary(self, original: dict[str, Any]) -> str:
         """生成进化变更摘要"""
         current = self.to_dict()
         changes = []

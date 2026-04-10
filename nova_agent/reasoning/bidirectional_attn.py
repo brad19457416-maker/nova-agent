@@ -7,7 +7,6 @@ Bidirectional Attention Flow - 双向注意力流
 """
 
 import logging
-from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +27,8 @@ class BidirectionalAttentionFlow:
         return self.enabled
 
     def reverse_activate(
-        self, aggregation_result, current_blocks: List[Dict], context: Dict
-    ) -> List[Dict]:
+        self, aggregation_result, current_blocks: list[dict], context: dict
+    ) -> list[dict]:
         """
         反向激活：检查上层聚合结果中提到的新概念，
         在下层激活相关块补充信息。
@@ -63,7 +62,7 @@ class BidirectionalAttentionFlow:
 
         return current_blocks
 
-    def _extract_new_concepts(self, aggregated_text: str, current_blocks: List[Dict]) -> List[str]:
+    def _extract_new_concepts(self, aggregated_text: str, current_blocks: list[dict]) -> list[str]:
         """提取聚合文本中出现的新概念（不在已有块中）"""
         # 简单关键词提取实现
         existing_words = set()
@@ -82,17 +81,16 @@ class BidirectionalAttentionFlow:
             phrase = aggregated_words[i] + " " + aggregated_words[i + 1]
             # 检查短语中至少一个词不在现有词中
             words = phrase.split()
-            if any(word not in existing_words for word in words):
-                if len(phrase) > 6:  # 过滤太短的
-                    new_concepts.append(phrase)
+            if any(word not in existing_words for word in words) and len(phrase) > 6:
+                new_concepts.append(phrase)
 
         # 去重，限制数量
         new_concepts = list(set(new_concepts))
         return new_concepts[:5]  # 最多反向激活 5 个新概念
 
     def _generate_new_blocks(
-        self, new_concepts: List[str], aggregated_text: str, context: Dict
-    ) -> List[Dict]:
+        self, new_concepts: list[str], aggregated_text: str, context: dict
+    ) -> list[dict]:
         """为新概念生成新的子任务块"""
         new_blocks = []
 

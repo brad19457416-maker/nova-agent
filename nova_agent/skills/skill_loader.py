@@ -7,7 +7,7 @@ Skill Loader - 技能加载器
 import logging
 import re
 from pathlib import Path
-from typing import List, Optional
+from typing import Optional
 
 import yaml
 
@@ -74,7 +74,7 @@ class SkillLoader:
 
         return Skill(name=name, description=description)
 
-    def load_from_directory(self, public_only: bool = True) -> List[Skill]:
+    def load_from_directory(self, public_only: bool = True) -> list[Skill]:
         """从目录批量加载技能"""
         skills = []
 

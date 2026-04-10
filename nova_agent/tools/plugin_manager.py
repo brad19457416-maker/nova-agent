@@ -8,7 +8,7 @@ import importlib
 import logging
 import sys
 from pathlib import Path
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from .plugin_base import PluginBase, PluginResult
 
@@ -19,8 +19,8 @@ class PluginManager:
     """插件管理器"""
 
     def __init__(self):
-        self.plugins: Dict[str, PluginBase] = {}
-        self.enabled: Dict[str, bool] = {}
+        self.plugins: dict[str, PluginBase] = {}
+        self.enabled: dict[str, bool] = {}
 
     def register_plugin(self, plugin: PluginBase) -> bool:
         """注册插件"""
@@ -106,7 +106,7 @@ class PluginManager:
         builtin_dir = Path(__file__).parent / "builtin"
         return self.load_plugins_from_directory(str(builtin_dir))
 
-    def list_plugins(self) -> List[Dict[str, Any]]:
+    def list_plugins(self) -> list[dict[str, Any]]:
         """列出所有插件"""
         result = []
         for name, plugin in self.plugins.items():
@@ -120,7 +120,7 @@ class PluginManager:
             )
         return result
 
-    def execute_plugin(self, name: str, parameters: Dict[str, Any], **kwargs) -> PluginResult:
+    def execute_plugin(self, name: str, parameters: dict[str, Any], **kwargs) -> PluginResult:
         """执行插件"""
         plugin = self.get_plugin(name)
         if plugin is None:

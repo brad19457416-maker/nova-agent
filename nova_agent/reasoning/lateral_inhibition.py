@@ -6,7 +6,6 @@ Adaptive Lateral Inhibition - 自适应侧抑制
 """
 
 import logging
-from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ class AdaptiveLateralInhibition:
         self.base_inhibition = base_inhibition
         self.similarity_threshold = similarity_threshold
 
-    def inhibit(self, blocks: List[Dict], query: str) -> List[Dict]:
+    def inhibit(self, blocks: list[dict], query: str) -> list[dict]:
         """
         应用侧抑制，减少冗余
 
@@ -70,7 +69,7 @@ class AdaptiveLateralInhibition:
         logger.debug(f"Lateral inhibition: {len(blocks)} → {len(inhibited)} blocks")
         return inhibited
 
-    def _compute_similarity_matrix(self, blocks: List[Dict]) -> List[List[float]]:
+    def _compute_similarity_matrix(self, blocks: list[dict]) -> list[list[float]]:
         """计算块之间的相似度矩阵"""
         n = len(blocks)
         matrix = [[0.0 for _ in range(n)] for _ in range(n)]

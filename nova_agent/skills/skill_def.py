@@ -9,7 +9,7 @@ SuperPowers 启发，技能使用 Markdown 定义，包含：
 """
 
 from dataclasses import asdict, dataclass
-from typing import Any, Dict
+from typing import Any
 
 
 @dataclass
@@ -34,7 +34,7 @@ class Skill:
     best_practices: list[str] = None
 
     # 参数定义
-    parameters: Dict[str, str] = None
+    parameters: dict[str, str] = None
 
     # 使用示例
     example: str = ""
@@ -46,12 +46,12 @@ class Skill:
     usage_count: int = 0
     success_rate: float = 1.0
 
-    def to_dict(self) -> Dict[str, Any]:
+    def to_dict(self) -> dict[str, Any]:
         """转换为字典"""
         return asdict(self)
 
     @classmethod
-    def from_dict(cls, data: Dict[str, Any]) -> "Skill":
+    def from_dict(cls, data: dict[str, Any]) -> "Skill":
         """从字典创建"""
         return cls(**data)
 

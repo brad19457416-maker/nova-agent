@@ -5,7 +5,7 @@ Skill Index - 技能索引检索
 """
 
 import logging
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from ..memory.vector_store import VectorStore
 from .skill_def import Skill
@@ -18,7 +18,7 @@ class SkillIndex:
 
     def __init__(self, vector_store: VectorStore = None):
         self.vector_store = vector_store or VectorStore("memory")
-        self.skills: Dict[str, Skill] = {}
+        self.skills: dict[str, Skill] = {}
 
     def add_skill(self, skill: Skill) -> None:
         """添加技能到索引"""
@@ -36,7 +36,7 @@ class SkillIndex:
 
         logger.debug(f"Added skill to index: {skill.name}")
 
-    def search_relevant(self, query: str, top_k: int = 5) -> List[Skill]:
+    def search_relevant(self, query: str, top_k: int = 5) -> list[Skill]:
         """搜索相关技能"""
         results = self.vector_store.search(query, top_k=top_k)
 
@@ -53,13 +53,13 @@ class SkillIndex:
         """按名称获取技能"""
         return self.skills.get(name)
 
-    def list_skills(self, category: Optional[str] = None) -> List[Skill]:
+    def list_skills(self, category: Optional[str] = None) -> list[Skill]:
         """列出所有技能"""
         if category:
             return [s for s in self.skills.values() if s.category == category]
         return list(self.skills.values())
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """获取统计信息"""
         categories = {}
         for skill in self.skills.values():

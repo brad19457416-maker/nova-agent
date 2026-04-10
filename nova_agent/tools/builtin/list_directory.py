@@ -17,7 +17,7 @@ class ListDirectoryPlugin(PluginBase):
         "type": "object",
         "properties": {
             "path": {"type": "string", "description": "Directory path"},
-            "recursive": {"type": "boolean", "description": "List recursively", "default": false},
+            "recursive": {"type": "boolean", "description": "List recursively", "default": False},
         },
         "required": ["path"],
     }

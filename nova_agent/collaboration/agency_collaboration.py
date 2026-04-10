@@ -7,7 +7,7 @@ Project Manager + Workers 分工，用户提供目标和决策。
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -21,7 +21,7 @@ class ProjectStep:
     status: str = "pending"  # pending → in_progress → done → blocked
     assigned_to: str = ""
     output: Optional[str] = None
-    notes: List[str] = None
+    notes: list[str] = None
 
     def __post_init__(self):
         if self.notes is None:
@@ -39,19 +39,19 @@ class AgencyCollaboration:
     - Shared Whiteboard：共享进度、决策、问题记录
     """
 
-    def __init__(self, config: Dict[str, Any] = None):
+    def __init__(self, config: dict[str, Any] = None):
         self.config = config or {}
         self.project_name: str = ""
         self.goal: str = ""
-        self.steps: List[ProjectStep] = []
-        self.whiteboard: Dict[str, Any] = {
+        self.steps: list[ProjectStep] = []
+        self.whiteboard: dict[str, Any] = {
             "decisions": [],
             "problems": [],
             "progress_notes": [],
         }
         self.current_step_index: int = 0
 
-    def start_project(self, project_name: str, goal: str, steps: List[Dict]) -> Dict:
+    def start_project(self, project_name: str, goal: str, steps: list[dict]) -> dict:
         """开始新项目"""
         self.project_name = project_name
         self.goal = goal
@@ -105,7 +105,7 @@ class AgencyCollaboration:
             }
         )
 
-    def complete_current_step(self, output: str) -> Dict:
+    def complete_current_step(self, output: str) -> dict:
         """完成当前步骤，下一步"""
         current = self._get_current_step()
         if current is None:
@@ -128,7 +128,7 @@ class AgencyCollaboration:
             "completed_steps": self.current_step_index,
         }
 
-    def block_current_step(self, problem: str) -> Dict:
+    def block_current_step(self, problem: str) -> dict:
         """阻塞当前步骤，需要用户帮助"""
         current = self._get_current_step()
         if current:
@@ -163,7 +163,7 @@ class AgencyCollaboration:
 
         return summary
 
-    def get_status(self) -> Dict:
+    def get_status(self) -> dict:
         """获取当前状态"""
         completed = sum(1 for s in self.steps if s.status == "done")
         blocked = sum(1 for s in self.steps if s.status == "blocked")

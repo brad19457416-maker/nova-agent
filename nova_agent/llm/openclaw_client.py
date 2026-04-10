@@ -6,7 +6,6 @@ OpenClaw Client - OpenClaw 平台 LLM 客户端
 
 import logging
 import os
-from typing import Dict, List
 
 import requests
 
@@ -33,7 +32,7 @@ class OpenClawClient(LLMClient):
         messages = [{"role": "user", "content": prompt}]
         return self.chat(messages, **kwargs)
 
-    def chat(self, messages: List[Dict], **kwargs) -> str:
+    def chat(self, messages: list[dict], **kwargs) -> str:
         """聊天对话 - 多轮对话"""
         url = f"{self.api_base}/chat/completions"
 
@@ -79,5 +78,5 @@ class OpenClawClient(LLMClient):
             # 简单测试调用
             self.complete("Hello")
             return True
-        except:
+        except Exception:
             return False

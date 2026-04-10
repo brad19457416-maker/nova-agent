@@ -5,7 +5,7 @@ Sub Agent - 子任务执行 Agent
 """
 
 import logging
-from typing import Any, Dict
+from typing import Any
 
 from ..memory.palace import MemoryPalace
 from ..reasoning.hgarn_engine import HGARNEngine
@@ -26,10 +26,10 @@ class SubAgent:
 
     def __init__(
         self,
-        task: Dict[str, Any],
+        task: dict[str, Any],
         memory_palace: MemoryPalace,
         plugin_manager: PluginManager,
-        config: Dict[str, Any],
+        config: dict[str, Any],
     ):
         self.task = task
         self.memory_palace = memory_palace  # 共享同一个记忆宫殿
@@ -45,7 +45,7 @@ class SubAgent:
             cumulative_gain_threshold=config.get("cumulative_gain_threshold", 2.5),
         )
 
-    def execute(self) -> Dict[str, Any]:
+    def execute(self) -> dict[str, Any]:
         """执行子任务"""
         task_description = self.task.get("description", "")
         task_context = self.task.get("context", {})

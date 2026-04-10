@@ -5,7 +5,7 @@ StrategyOptimizer - 策略优化器
 """
 
 import logging
-from typing import Any, Dict, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -18,9 +18,9 @@ class StrategyOptimizer:
     """
 
     def __init__(self):
-        self.strategy_history: List[Dict] = []
+        self.strategy_history: list[dict] = []
 
-    def optimize(self, evaluation, current_config: Dict[str, Any]) -> Dict[str, Any]:
+    def optimize(self, evaluation, current_config: dict[str, Any]) -> dict[str, Any]:
         """
         根据评估优化配置
 
@@ -64,7 +64,7 @@ class StrategyOptimizer:
 
         return new_config
 
-    def ab_test(self, strategy_a: Dict, strategy_b: Dict, query: str, evaluation) -> Dict:
+    def ab_test(self, strategy_a: dict, strategy_b: dict, query: str, evaluation) -> dict:
         """A/B 测试两种策略"""
         winner = strategy_a if evaluation["a"] > evaluation["b"] else strategy_b
         loser = strategy_b if winner is strategy_a else strategy_a
@@ -73,7 +73,7 @@ class StrategyOptimizer:
 
         return {"winner": winner, "loser": loser, "evaluation": evaluation}
 
-    def get_history(self) -> List[Dict]:
+    def get_history(self) -> list[dict]:
         """获取优化历史"""
         return self.strategy_history
 

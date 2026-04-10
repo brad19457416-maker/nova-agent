@@ -12,7 +12,7 @@ HGARN Engine - Hierarchical Gated Attention Residual Network Engine
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, List, Optional, Tuple
+from typing import Any, Optional
 
 from ..llm.client_base import LLMClient
 from .bidirectional_attn import BidirectionalAttentionFlow
@@ -31,10 +31,10 @@ class ReasoningResult:
     success: bool
     final_response: str
     needs_tools: bool = False
-    tool_calls: Optional[List[Dict]] = None
+    tool_calls: Optional[list[dict]] = None
     total_gain: float = 0.0
     confidence: float = 0.0
-    tools_used: List[str] = None
+    tools_used: list[str] = None
     num_blocks: int = 0
     num_levels: int = 0
 
@@ -112,7 +112,7 @@ class HGARNEngine:
         """设置 LLM 客户端"""
         self.llm_client = client
 
-    def solve(self, context: Dict[str, Any], **kwargs) -> ReasoningResult:
+    def solve(self, context: dict[str, Any], **kwargs) -> ReasoningResult:
         """
         求解问题
 
@@ -195,14 +195,14 @@ class HGARNEngine:
         )
 
     def solve_with_tools(
-        self, context: Dict[str, Any], tool_results: List[Dict], **kwargs
+        self, context: dict[str, Any], tool_results: list[dict], **kwargs
     ) -> ReasoningResult:
         """工具调用后重新推理整合"""
         # 将工具结果加入上下文，重新推理
         context["tool_results"] = tool_results
         return self.solve(context, **kwargs)
 
-    def _decompose_task(self, query: str, context: Dict) -> List[Dict]:
+    def _decompose_task(self, query: str, context: dict) -> list[dict]:
         """任务分解为块"""
         # 使用 LLM 分解
         prompt = self._build_decomposition_prompt(query, context)
@@ -212,7 +212,7 @@ class HGARNEngine:
         blocks = self._parse_decomposition(response)
         return blocks
 
-    def _build_decomposition_prompt(self, query: str, context: Dict) -> str:
+    def _build_decomposition_prompt(self, query: str, context: dict) -> str:
         """构建分解提示"""
         prompt = f"""请将以下任务分解为可独立执行的子任务：
 
@@ -232,7 +232,7 @@ class HGARNEngine:
 
         return prompt
 
-    def _parse_decomposition(self, response: str) -> List[Dict]:
+    def _parse_decomposition(self, response: str, query: str) -> list[dict]:
         """解析分解响应"""
         import json
 
@@ -261,7 +261,7 @@ class HGARNEngine:
             # 返回一个默认块
             return [{"id": "1", "description": "Solve the query: " + query}]
 
-    def _prefilter_blocks(self, blocks: List[Dict], memories: List) -> List[Dict]:
+    def _prefilter_blocks(self, blocks: list[dict], memories: list) -> list[dict]:
         """向量预过滤，过滤掉不相关块"""
         # 简化实现，基于关键词重叠过滤
         filtered = []
@@ -279,7 +279,7 @@ class HGARNEngine:
 
         return filtered if filtered else blocks
 
-    def _generate_response(self, aggregated: List[Dict], context: Dict) -> str:
+    def _generate_response(self, aggregated: list[dict], context: dict) -> str:
         """生成最终响应"""
         if len(aggregated) == 1 and "aggregated_text" in aggregated[0]:
             # 已经聚合
@@ -290,7 +290,7 @@ class HGARNEngine:
         response = self.llm_client.complete(prompt)
         return response
 
-    def _build_aggregation_prompt(self, aggregated: List[Dict], context: Dict) -> str:
+    def _build_aggregation_prompt(self, aggregated: list[dict], context: dict) -> str:
         """构建聚合提示"""
         prompt = f"""请聚合以下子任务结果，生成针对原始问题的完整回答：
 
@@ -308,13 +308,12 @@ class HGARNEngine:
 """
         return prompt
 
-    def _check_tool_calls(self, response: str) -> Tuple[bool, Optional[List[Dict]]]:
+    def _check_tool_calls(self, response: str) -> tuple[bool, Optional[list[dict]]]:
         """检查是否需要工具调用"""
         import json
         import re
 
         # 查找 JSON 格式的工具调用
-        tool_call_pattern = r"\[.*tool_call.*\]"
         matches = re.findall(r'\{.*"plugin_name".*}', response, re.DOTALL)
 
         if not matches:
@@ -326,7 +325,7 @@ class HGARNEngine:
                 call = json.loads(match)
                 if "plugin_name" in call:
                     tool_calls.append(call)
-            except:
+            except Exception:
                 continue
 
         return len(tool_calls) > 0, tool_calls if tool_calls else None

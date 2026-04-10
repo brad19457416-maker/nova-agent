@@ -15,7 +15,7 @@ MemoryPalace - 五级虚拟记忆宫殿
 import json
 import logging
 from pathlib import Path
-from typing import Any, Dict, List, Tuple
+from typing import Any
 
 from .aaak_compress import AAAKCompressor
 from .contradiction_check import ContradictionChecker
@@ -50,7 +50,7 @@ class MemoryPalace:
         self.retriever = HierarchicalRetriever(self, self.vector_store)
 
         # 宫殿结构索引
-        self.structure_index: Dict[str, Any] = {"wings": {}, "total_memories": 0}
+        self.structure_index: dict[str, Any] = {"wings": {}, "total_memories": 0}
 
         # 加载现有索引
         self._load_index()
@@ -94,10 +94,7 @@ class MemoryPalace:
         memory_id = f"{wing}_{room}_{hall}_{self.structure_index['total_memories']}"
 
         # AAAK 压缩
-        if compressed:
-            compressed_content = self.compressor.compress(content)
-        else:
-            compressed_content = content
+        compressed_content = self.compressor.compress(content) if compressed else content
 
         # 存储：Closet 存压缩，Drawer 存原始
         closet_path = hall_dir / f"{memory_id}_closet.txt"
@@ -160,7 +157,7 @@ class MemoryPalace:
         hierarchical_filter: bool = True,
         contradiction_check: bool = True,
         top_k: int = 10,
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         检索相关记忆
 
@@ -190,7 +187,7 @@ class MemoryPalace:
 
         return results
 
-    def _load_content(self, result: Dict) -> str:
+    def _load_content(self, result: dict) -> str:
         """加载记忆内容"""
         # 如果已经有路径，直接加载
         if "path_closet" in result:
@@ -211,7 +208,7 @@ class MemoryPalace:
 
         return result.get("text", "")
 
-    def get_memory_full(self, memory_id: str) -> Dict[str, str]:
+    def get_memory_full(self, memory_id: str) -> dict[str, str]:
         """获取记忆的压缩和原始内容"""
         # 解析 ID 获取位置
         parts = memory_id.split("_")
@@ -220,18 +217,21 @@ class MemoryPalace:
             closet_path = self.data_dir / wing / room / hall / f"{memory_id}_closet.txt"
             drawer_path = self.data_dir / wing / room / hall / f"{memory_id}_drawer.txt"
 
-            compressed = (
-                open(closet_path, encoding="utf-8").read() if closet_path.exists() else ""
-            )
-            original = (
-                open(drawer_path, encoding="utf-8").read() if drawer_path.exists() else ""
-            )
+            compressed = ""
+            if closet_path.exists():
+                with open(closet_path, encoding="utf-8") as f:
+                    compressed = f.read()
+
+            original = ""
+            if drawer_path.exists():
+                with open(drawer_path, encoding="utf-8") as f:
+                    original = f.read()
 
             return {"compressed": compressed, "original": original}
 
         return {"compressed": "", "original": ""}
 
-    def add_interaction(self, record: Dict[str, Any]) -> str:
+    def add_interaction(self, record: dict[str, Any]) -> str:
         """添加交互记录到记忆"""
         return self.add_memory(
             wing="interactions",
@@ -247,11 +247,11 @@ class MemoryPalace:
 
         return datetime.now().strftime("%Y_%m")
 
-    def check_contradiction(self, new_statement: str) -> Tuple[bool, List]:
+    def check_contradiction(self, new_statement: str) -> tuple[bool, list]:
         """检查新陈述是否与已有记忆矛盾"""
         return self.contradiction_checker.check(new_statement, self.vector_store)
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """获取统计信息"""
         return {
             "total_memories": self.structure_index["total_memories"],
@@ -259,11 +259,11 @@ class MemoryPalace:
             "vector_size": self.vector_store.count(),
         }
 
-    def list_wings(self) -> List[str]:
+    def list_wings(self) -> list[str]:
         """列出所有侧翼"""
         return list(self.structure_index["wings"].keys())
 
-    def list_rooms(self, wing: str) -> List[str]:
+    def list_rooms(self, wing: str) -> list[str]:
         """列出侧翼下所有房间"""
         if wing in self.structure_index["wings"]:
             return list(self.structure_index["wings"][wing]["rooms"].keys())

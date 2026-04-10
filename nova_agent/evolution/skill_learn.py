@@ -7,7 +7,6 @@ SkillLearner - 技能学习器
 
 import json
 import logging
-from typing import Dict, List
 
 from ..memory.palace import MemoryPalace
 
@@ -46,7 +45,7 @@ class SkillLearner:
         logger.info(f"Learned new skill: {skill_def.get('name', 'unnamed')} → {skill_id}")
         return skill_id
 
-    def _extract_skill_pattern(self, query: str, response: str) -> Dict:
+    def _extract_skill_pattern(self, query: str, response: str) -> dict:
         """提取可复用的技能模式"""
         # 这里需要 LLM 提取模式
         # 实际提取由外层 LLM 完成
@@ -64,7 +63,7 @@ class SkillLearner:
         words = query.split()[:5]
         return "_".join(words)
 
-    def _store_skill(self, skill_def: Dict) -> str:
+    def _store_skill(self, skill_def: dict) -> str:
         """存储技能到记忆宫殿"""
         # 分类到技能 wing
         content = json.dumps(skill_def, ensure_ascii=False, indent=2)
@@ -75,13 +74,13 @@ class SkillLearner:
 
         return skill_id
 
-    def list_learned_skills(self) -> List[Dict]:
+    def list_learned_skills(self) -> list[dict]:
         """列出所有学习到的技能"""
         wings = self.memory_palace.list_wings()
         if "skills" not in wings:
             return []
 
-        rooms = self.memory_palace.list_rooms("skills")
+        self.memory_palace.list_rooms("skills")
         skills = []
 
         # 这里需要遍历，简化返回

@@ -7,7 +7,7 @@ DeerFlow 启发，每个任务独立容器，安全隔离。
 import logging
 import os
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 import docker
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class DockerSandbox(Sandbox):
     """Docker 隔离沙箱"""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.image = config.get("image", "python:3.11-slim")
         self.working_dir = config.get("working_dir", "/mnt/workspace")
         self.client = docker.from_env()
@@ -55,7 +55,7 @@ class DockerSandbox(Sandbox):
         try:
             self.container.reload()
             return self.container.status == "running"
-        except:
+        except Exception:
             return False
 
     def execute(
@@ -108,7 +108,7 @@ class DockerSandbox(Sandbox):
         self._start_container()
 
         try:
-            full_path = os.path.join(self.working_dir, path)
+            os.path.join(self.working_dir, path)
             result = self.container.exec_run(f"cat '{path}'", workdir=self.working_dir)
             if result.exit_code == 0:
                 return result.output.decode("utf-8", errors="replace")

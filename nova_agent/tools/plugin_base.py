@@ -7,7 +7,7 @@ PluginBase - 插件基类
 import logging
 from abc import ABC, abstractmethod
 from dataclasses import dataclass
-from typing import Any, Dict
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -19,9 +19,9 @@ class PluginResult:
     success: bool
     result: Any = None
     error: str = ""
-    metadata: Dict[str, Any] = None
+    metadata: dict[str, Any] = None
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "success": self.success,
             "result": self.result,
@@ -40,10 +40,10 @@ class PluginBase(ABC):
     name: str = ""
     description: str = ""
     version: str = "0.1.0"
-    parameters_schema: Dict[str, Any] = {}
+    parameters_schema: dict[str, Any] = {}
 
     @abstractmethod
-    def execute(self, parameters: Dict[str, Any], **kwargs) -> PluginResult:
+    def execute(self, parameters: dict[str, Any], **kwargs) -> PluginResult:
         """
         执行插件
 
@@ -56,7 +56,7 @@ class PluginBase(ABC):
         """
         pass
 
-    def get_schema(self) -> Dict[str, Any]:
+    def get_schema(self) -> dict[str, Any]:
         """获取 OpenAI Function Calling 格式 schema"""
         return {
             "type": "function",
@@ -67,7 +67,7 @@ class PluginBase(ABC):
             },
         }
 
-    def validate_parameters(self, parameters: Dict[str, Any]) -> bool:
+    def validate_parameters(self, parameters: dict[str, Any]) -> bool:
         """验证参数是否符合 schema"""
         # 简化验证，只检查必填
         required = self.parameters_schema.get("required", [])

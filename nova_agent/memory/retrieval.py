@@ -5,7 +5,7 @@ MemPalace 启发：先按宫殿层级过滤，再向量检索，提升精度。
 """
 
 import logging
-from typing import Dict, List, Optional
+from typing import Optional
 
 logger = logging.getLogger(__name__)
 
@@ -24,7 +24,7 @@ class HierarchicalRetriever:
 
     def hierarchical_retrieve(
         self, query: str, wing: Optional[str] = None, room: Optional[str] = None, top_k: int = 10
-    ) -> List[Dict]:
+    ) -> list[dict]:
         """
         分层检索
 
@@ -48,11 +48,11 @@ class HierarchicalRetriever:
             else:
                 return self._retrieve_in_room(query, wing, room, top_k)
 
-    def _global_retrieve(self, query: str, top_k: int) -> List[Dict]:
+    def _global_retrieve(self, query: str, top_k: int) -> list[dict]:
         """全局检索"""
         return self.vector_store.search(query, top_k=top_k)
 
-    def _retrieve_in_wing(self, query: str, wing: str, top_k: int) -> List[Dict]:
+    def _retrieve_in_wing(self, query: str, wing: str, top_k: int) -> list[dict]:
         """在指定侧翼内检索"""
         all_results = self.vector_store.search(query, top_k=top_k * 2)
 
@@ -66,7 +66,7 @@ class HierarchicalRetriever:
 
         return wing_results[:top_k]
 
-    def _retrieve_in_room(self, query: str, wing: str, room: str, top_k: int) -> List[Dict]:
+    def _retrieve_in_room(self, query: str, wing: str, room: str, top_k: int) -> list[dict]:
         """在指定房间内检索"""
         all_results = self.vector_store.search(query, top_k=top_k * 3)
 
@@ -95,6 +95,6 @@ class HierarchicalRetriever:
 
         return room_results[:top_k]
 
-    def filter_by_hall(self, results: List[Dict], hall: str) -> List[Dict]:
+    def filter_by_hall(self, results: list[dict], hall: str) -> list[dict]:
         """按厅堂类型过滤"""
         return [r for r in results if r.get("metadata", {}).get("hall") == hall]

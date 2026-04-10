@@ -8,7 +8,7 @@ Task Decomposer - 任务分解器
 import json
 import logging
 import re
-from typing import Any, Dict, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -20,7 +20,7 @@ class TaskDecomposer:
         self.max_subtasks = max_subtasks
         self.max_depth = max_depth
 
-    def decompose(self, query: str, context: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def decompose(self, query: str, context: dict[str, Any]) -> list[dict[str, Any]]:
         """
         分解任务
 
@@ -38,13 +38,13 @@ class TaskDecomposer:
         # 否则简单启发式分解
         return self._heuristic_decompose(query)
 
-    def _llm_decompose(self, query: str, context: Dict[str, Any]) -> List[Dict]:
+    def _llm_decompose(self, query: str, context: dict[str, Any]) -> list[dict]:
         """使用 LLM 分解"""
         prompt = self._build_prompt(query, context)
         response = context["llm_client"].complete(prompt)
         return self._parse_response(response)
 
-    def _build_prompt(self, query: str, context: Dict[str, Any]) -> str:
+    def _build_prompt(self, query: str, context: dict[str, Any]) -> str:
         """构建分解提示"""
         prompt = f"""请将以下复杂任务分解为可独立执行的子任务：
 
@@ -76,7 +76,7 @@ class TaskDecomposer:
 
         return prompt
 
-    def _parse_response(self, response: str) -> List[Dict]:
+    def _parse_response(self, response: str, query: str) -> list[dict]:
         """解析 LLM 响应"""
         # 尝试提取 JSON
         try:
@@ -121,7 +121,7 @@ class TaskDecomposer:
         # 如果都失败，返回一个默认任务
         return [{"id": "1", "index": 0, "description": query, "dependencies": []}]
 
-    def _heuristic_decompose(self, query: str) -> List[Dict]:
+    def _heuristic_decompose(self, query: str) -> list[dict]:
         """简单启发式分解（按换行分割）"""
         lines = [line.strip() for line in query.split("\n") if line.strip()]
         if len(lines) <= 1:

@@ -66,7 +66,6 @@ class TestConfigUpdate:
     def test_update_unknown_key(self):
         """测试更新未知键（应忽略）"""
         config = Config.default()
-        original_levels = config.max_levels
         config.update({"unknown_key": 123, "max_levels": 5})
         assert config.max_levels == 5
         # unknown_key 不应被添加
@@ -100,7 +99,6 @@ class TestConfigEvolution:
     def test_medium_quality_no_level_change(self):
         """测试中等质量反馈"""
         config = Config.default()
-        original_levels = config.max_levels
         config.apply_evolution(quality_score=0.5)
 
         # 中等质量主要调整侧抑制强度，不调整层级

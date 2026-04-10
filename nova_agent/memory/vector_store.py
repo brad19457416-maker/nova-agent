@@ -9,7 +9,7 @@ VectorStore - 抽象向量存储基类
 
 import logging
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -18,12 +18,12 @@ class VectorStore(ABC):
     """向量存储抽象基类"""
 
     @abstractmethod
-    def add(self, text: str, metadata: Dict[str, Any]) -> None:
+    def add(self, text: str, metadata: dict[str, Any]) -> None:
         """添加文本到向量存储"""
         pass
 
     @abstractmethod
-    def search(self, query: str, top_k: int = 10) -> List[Dict]:
+    def search(self, query: str, top_k: int = 10) -> list[dict]:
         """搜索相似文本，返回结果列表，每个包含 text, similarity, metadata"""
         pass
 
@@ -33,7 +33,7 @@ class VectorStore(ABC):
         pass
 
     @abstractmethod
-    def delete(self, ids: List[str]) -> None:
+    def delete(self, ids: list[str]) -> None:
         """删除向量"""
         pass
 
@@ -42,10 +42,10 @@ class InMemoryVectorStore(VectorStore):
     """简单内存向量存储（用于测试和小规模场景）"""
 
     def __init__(self):
-        self.data: List[Dict] = []
+        self.data: list[dict] = []
         self._embedder = None
 
-    def _get_embedding(self, text: str) -> List[float]:
+    def _get_embedding(self, text: str) -> list[float]:
         """获取嵌入，这里简单使用懒加载"""
         if self._embedder is None:
             from sentence_transformers import SentenceTransformer
@@ -54,11 +54,11 @@ class InMemoryVectorStore(VectorStore):
 
         return self._embedder.encode(text).tolist()
 
-    def add(self, text: str, metadata: Dict[str, Any]) -> None:
+    def add(self, text: str, metadata: dict[str, Any]) -> None:
         embedding = self._get_embedding(text)
         self.data.append({"text": text, "embedding": embedding, "metadata": metadata})
 
-    def _cosine_sim(self, a: List[float], b: List[float]) -> float:
+    def _cosine_sim(self, a: list[float], b: list[float]) -> float:
         """余弦相似度计算"""
         import math
 
@@ -69,7 +69,7 @@ class InMemoryVectorStore(VectorStore):
             return 0
         return dot / (mag_a * mag_b)
 
-    def search(self, query: str, top_k: int = 10) -> List[Dict]:
+    def search(self, query: str, top_k: int = 10) -> list[dict]:
         query_emb = self._get_embedding(query)
 
         results = []
@@ -83,7 +83,7 @@ class InMemoryVectorStore(VectorStore):
     def count(self) -> int:
         return len(self.data)
 
-    def delete(self, ids: List[str]) -> None:
+    def delete(self, ids: list[str]) -> None:
         # 简单实现，按 metadata id 删除
         self.data = [item for item in self.data if item["metadata"].get("id") not in ids]
 
@@ -106,7 +106,7 @@ class ChromaDBVectorStore(VectorStore):
             logger.error("ChromaDB not installed, install with: pip install chromadb")
             raise
 
-    def add(self, text: str, metadata: Dict[str, Any]) -> None:
+    def add(self, text: str, metadata: dict[str, Any]) -> None:
         import uuid
 
         doc_id = str(uuid.uuid4())
@@ -114,7 +114,7 @@ class ChromaDBVectorStore(VectorStore):
         # Chroma 自动处理嵌入
         self.collection.add(documents=[text], metadatas=[metadata], ids=[doc_id])
 
-    def search(self, query: str, top_k: int = 10) -> List[Dict]:
+    def search(self, query: str, top_k: int = 10) -> list[dict]:
         results = self.collection.query(query_texts=[query], n_results=top_k)
 
         # 格式化返回
@@ -133,11 +133,11 @@ class ChromaDBVectorStore(VectorStore):
     def count(self) -> int:
         return self.collection.count()
 
-    def delete(self, ids: List[str]) -> None:
+    def delete(self, ids: list[str]) -> None:
         self.collection.delete(ids=ids)
 
 
-def VectorStore(backend: str = "chromadb", **kwargs) -> VectorStore:
+def create_vector_store(backend: str = "chromadb", **kwargs) -> VectorStore:
     """工厂方法创建向量存储"""
     if backend == "memory":
         return InMemoryVectorStore()
@@ -145,3 +145,7 @@ def VectorStore(backend: str = "chromadb", **kwargs) -> VectorStore:
         return ChromaDBVectorStore(**kwargs)
     else:
         raise ValueError(f"Unknown vector store backend: {backend}")
+
+
+# 向后兼容的别名
+VectorStore = create_vector_store

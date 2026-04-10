@@ -8,7 +8,7 @@ DeerFlow 启发的主/子分层协作架构：
 
 import logging
 from concurrent.futures import ThreadPoolExecutor, as_completed
-from typing import Any, Dict, List
+from typing import Any
 
 from ..concurrency.dynamic_controller import DynamicConcurrencyController
 from ..reasoning.task_decomposition import TaskDecomposer
@@ -29,7 +29,7 @@ class LeadAgent:
     5. 生成最终输出
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.decomposer = TaskDecomposer()
         self.concurrency_controller = DynamicConcurrencyController(
@@ -37,13 +37,13 @@ class LeadAgent:
             max_concurrency=config.get("max_concurrency", 8),
         )
 
-    def decompose_task(self, query: str, context: Dict[str, Any]) -> List[Dict[str, Any]]:
+    def decompose_task(self, query: str, context: dict[str, Any]) -> list[dict[str, Any]]:
         """将完整任务分解为子任务"""
         return self.decomposer.decompose(query, context)
 
     def execute_parallel(
-        self, sub_tasks: List[Dict[str, Any]], memory_palace, plugin_manager
-    ) -> List[Dict[str, Any]]:
+        self, sub_tasks: list[dict[str, Any]], memory_palace, plugin_manager
+    ) -> list[dict[str, Any]]:
         """并行执行多个子任务"""
         results = []
         current_concurrency = self.concurrency_controller.get_current_concurrency()
@@ -75,7 +75,7 @@ class LeadAgent:
         return results
 
     def aggregate_results(
-        self, sub_results: List[Dict[str, Any]], original_query: str, context: Dict[str, Any]
+        self, sub_results: list[dict[str, Any]], original_query: str, context: dict[str, Any]
     ) -> str:
         """聚合所有子任务结果生成最终回答"""
         # 使用 HGARN 聚合
@@ -88,8 +88,8 @@ class LeadAgent:
         return final_response
 
     def run(
-        self, query: str, context: Dict[str, Any], memory_palace, plugin_manager
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any], memory_palace, plugin_manager
+    ) -> dict[str, Any]:
         """完整运行主/子模式"""
 
         # 1. 分解任务

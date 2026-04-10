@@ -12,7 +12,7 @@ import json
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -36,7 +36,7 @@ class Fact:
             return query_time >= self.start_time
         return self.start_time <= query_time <= self.end_time
 
-    def to_dict(self) -> Dict:
+    def to_dict(self) -> dict:
         return {
             "subject": self.subject,
             "predicate": self.predicate,
@@ -49,7 +49,7 @@ class Fact:
         }
 
     @classmethod
-    def from_dict(cls, data: Dict) -> "Fact":
+    def from_dict(cls, data: dict) -> "Fact":
         return cls(**data)
 
 
@@ -65,8 +65,8 @@ class TemporalFactGraph:
     """
 
     def __init__(self):
-        self.facts: List[Fact] = []
-        self.entity_index: Dict[str, List[str]] = {}  # entity -> fact_ids
+        self.facts: list[Fact] = []
+        self.entity_index: dict[str, list[str]] = {}  # entity -> fact_ids
         self.next_id = 0
 
     def add_fact(
@@ -120,7 +120,7 @@ class TemporalFactGraph:
         logger.debug(f"Added fact: {subject} {predicate} {object_}")
         return fact
 
-    def _find_open_facts(self, subject: str, predicate: str) -> List[Fact]:
+    def _find_open_facts(self, subject: str, predicate: str) -> list[Fact]:
         """查找当前开放（end_time=None）的相同主题-谓词事实"""
         return [
             f
@@ -128,36 +128,40 @@ class TemporalFactGraph:
             if f.subject == subject and f.predicate == predicate and f.end_time is None
         ]
 
-    def get_current_facts(self, subject: str, predicate: Optional[str] = None) -> List[Fact]:
+    def get_current_facts(self, subject: str, predicate: Optional[str] = None) -> list[Fact]:
         """获取当前有效的事实"""
         facts = []
         for fact in self.facts:
-            if fact.subject == subject:
-                if predicate is None or fact.predicate == predicate:
-                    if fact.end_time is None:
-                        facts.append(fact)
+            if (
+                fact.subject == subject
+                and (predicate is None or fact.predicate == predicate)
+                and fact.end_time is None
+            ):
+                facts.append(fact)
         return facts
 
     def get_facts_at_time(
         self, subject: str, query_time: str, predicate: Optional[str] = None
-    ) -> List[Fact]:
+    ) -> list[Fact]:
         """获取在指定时间点有效的事实"""
         facts = []
         for fact in self.facts:
-            if fact.subject == subject:
-                if predicate is None or fact.predicate == predicate:
-                    if fact.is_valid_at(query_time):
-                        facts.append(fact)
+            if (
+                fact.subject == subject
+                and (predicate is None or fact.predicate == predicate)
+                and fact.is_valid_at(query_time)
+            ):
+                facts.append(fact)
         return facts
 
-    def get_history(self, subject: str, predicate: str) -> List[Fact]:
+    def get_history(self, subject: str, predicate: str) -> list[Fact]:
         """获取事实的完整历史变化"""
         facts = [f for f in self.facts if f.subject == subject and f.predicate == predicate]
         # 按开始时间排序
         facts.sort(key=lambda f: f.start_time)
         return facts
 
-    def search_relevant(self, query: str, top_k: int = 10) -> List[Dict]:
+    def search_relevant(self, query: str, top_k: int = 10) -> list[dict]:
         """搜索与查询相关的事实（简单关键词匹配，向量检索在外层）"""
         relevant = []
         query_words = set(query.lower().split())
@@ -177,7 +181,7 @@ class TemporalFactGraph:
         relevant.sort(key=lambda x: -x["overlap"])
         return relevant[:top_k]
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """获取统计信息"""
         current_count = sum(1 for f in self.facts if f.end_time is None)
         entities = set()
@@ -212,7 +216,7 @@ class TemporalFactGraph:
         self.next_id = data.get("next_id", len(self.facts))
         self.entity_index = data.get("entity_index", {})
 
-    def query_chain(self, start_entity: str, max_depth: int = 3) -> List[Dict]:
+    def query_chain(self, start_entity: str, max_depth: int = 3) -> list[dict]:
         """BFS 遍历查询实体关系链"""
         visited = set()
         queue = [(start_entity, 0)]

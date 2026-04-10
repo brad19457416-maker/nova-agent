@@ -6,7 +6,6 @@ WTA - Winner-Take-All 赢者通吃
 """
 
 import logging
-from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -30,7 +29,7 @@ class WTASelection:
         self.max_activate = max_activate
         self.clusters = clusters
 
-    def select(self, blocks: List[Dict], query: str) -> List[Dict]:
+    def select(self, blocks: list[dict], query: str) -> list[dict]:
         """
         选择最相关的 Top-K 块
 
@@ -56,8 +55,8 @@ class WTASelection:
         return selected
 
     def select_per_cluster(
-        self, blocks: List[Dict], clusters: List[List[int]], top_per_cluster: int = 3
-    ) -> List[Dict]:
+        self, blocks: list[dict], clusters: list[list[int]], top_per_cluster: int = 3
+    ) -> list[dict]:
         """
         每个簇选 Top-K，保持多样性
 

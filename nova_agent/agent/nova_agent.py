@@ -6,7 +6,7 @@ NovaAgent - 主入口类
 
 import logging
 import os
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 from ..concurrency.dynamic_controller import DynamicConcurrencyController
 from ..config import Config
@@ -45,7 +45,7 @@ class NovaAgent:
     - 配置自主进化，根据反馈自动调整参数
     """
 
-    def __init__(self, config: Optional[Dict[str, Any]] = None, config_path: Optional[str] = None):
+    def __init__(self, config: Optional[dict[str, Any]] = None, config_path: Optional[str] = None):
         """
         初始化 Nova Agent
 
@@ -195,7 +195,7 @@ class NovaAgent:
             result = self.reasoning_engine.solve_with_tools(context, tool_results, **kwargs)
 
         # 6. 记录交互用于后续进化
-        interaction_record = self._record_interaction(query, result)
+        self._record_interaction(query, result)
 
         # 7. 记录进化监控
         self.evolution_monitor.record_evaluation(
@@ -221,7 +221,7 @@ class NovaAgent:
         else:
             return "general"
 
-    def _build_context(self, query: str, memories: List, facts: List) -> Dict:
+    def _build_context(self, query: str, memories: list, facts: list) -> dict:
         """构建推理上下文"""
         context = {
             "query": query,
@@ -232,7 +232,7 @@ class NovaAgent:
         }
         return context
 
-    def _execute_tools(self, tool_calls: List[Dict]) -> List[Dict]:
+    def _execute_tools(self, tool_calls: list[dict]) -> list[dict]:
         """执行工具调用"""
         results = []
         for call in tool_calls:
@@ -256,7 +256,7 @@ class NovaAgent:
                 )
         return results
 
-    def _record_interaction(self, query: str, result) -> Dict:
+    def _record_interaction(self, query: str, result) -> dict:
         """记录交互用于进化"""
         record = {
             "query": query,
@@ -277,7 +277,7 @@ class NovaAgent:
 
         return record
 
-    def feedback(self, query: str, response: str, rating: int, comment: str = "") -> Dict:
+    def feedback(self, query: str, response: str, rating: int, comment: str = "") -> dict:
         """
         用户反馈，触发自主进化
 
@@ -306,7 +306,7 @@ class NovaAgent:
         # 自主进化配置参数
         changes = {}
         if self.config.evolution_enabled and self.config.auto_optimize_config:
-            original_config = self.config.to_dict()
+            self.config.to_dict()
             changes = self.config.apply_evolution(evaluation.quality_score)
             if changes:
                 # 保存进化后的配置
@@ -319,7 +319,7 @@ class NovaAgent:
         # 记录进化步骤
         before_rate = self.evolution_monitor.get_success_rate()
         after_rate = self.evolution_monitor.get_success_rate()
-        num_skills = len(self.skill_learner.list_learned_skills())
+        len(self.skill_learner.list_learned_skills())
         self.evolution_monitor.record_evolution_step(
             before_rate,
             after_rate,
@@ -337,11 +337,11 @@ class NovaAgent:
             "evolution_report": self.evolution_monitor.generate_report(),
         }
 
-    def get_config(self) -> Dict[str, Any]:
+    def get_config(self) -> dict[str, Any]:
         """获取当前配置"""
         return self.config.to_dict()
 
-    def update_config(self, changes: Dict[str, Any]) -> None:
+    def update_config(self, changes: dict[str, Any]) -> None:
         """手动更新配置"""
         self.config.update(changes)
         self._save_evolved_config()
@@ -355,7 +355,7 @@ class NovaAgent:
         """加载外部插件"""
         return self.plugin_manager.load_plugin_from_path(plugin_path)
 
-    def get_memory_status(self) -> Dict[str, Any]:
+    def get_memory_status(self) -> dict[str, Any]:
         """获取记忆系统状态"""
         return {
             "palace_stats": self.memory_palace.get_stats(),

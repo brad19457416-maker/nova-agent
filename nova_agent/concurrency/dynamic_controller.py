@@ -8,7 +8,7 @@ Dynamic Concurrency Controller - 动态并发控制器
 """
 
 import logging
-from typing import Any, Dict
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -85,7 +85,7 @@ class DynamicConcurrencyController:
                 f"Decreased concurrency to {self.current} (consecutive failures: {self.consecutive_failures})"
             )
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """获取统计"""
         total = self.total_success + self.total_failure
         success_rate = self.total_success / total if total > 0 else 0

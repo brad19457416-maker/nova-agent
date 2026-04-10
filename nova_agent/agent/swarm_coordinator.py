@@ -10,7 +10,7 @@ MiroFish 启发的群体智能推演：
 
 import logging
 from concurrent.futures import ThreadPoolExecutor
-from typing import Any, Dict, List
+from typing import Any
 
 logger = logging.getLogger(__name__)
 
@@ -27,14 +27,14 @@ class SwarmCoordinator:
     5. 分析共识和分歧，生成综合报告
     """
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.config = config
         self.num_agents = config.get("num_agents", 5)
         self.enable_diversity = config.get("enable_diversity", True)
 
     def create_swarm_agents(
-        self, query: str, context: Dict[str, Any], memory_palace, plugin_manager
-    ) -> List[Dict]:
+        self, query: str, context: dict[str, Any], memory_palace, plugin_manager
+    ) -> list[dict]:
         """创建群体中的每个智能体，注入不同视角"""
         agents = []
 
@@ -61,7 +61,7 @@ class SwarmCoordinator:
 
         return agents
 
-    def _generate_diverse_perspectives(self, query: str) -> List[str]:
+    def _generate_diverse_perspectives(self, query: str) -> list[str]:
         """为群体生成多样化视角，促进独立思考"""
         # 典型的多视角
         base_perspectives = [
@@ -78,7 +78,7 @@ class SwarmCoordinator:
         # 返回足够数量，不超过我们需要的
         return base_perspectives[: self.num_agents]
 
-    def run_parallel_deduction(self, swarm_agents: List[Dict], query: str) -> List[Dict]:
+    def run_parallel_deduction(self, swarm_agents: list[dict], query: str) -> list[dict]:
         """并行运行所有智能体的推演"""
         results = []
 
@@ -101,7 +101,7 @@ class SwarmCoordinator:
         results.sort(key=lambda x: x.get("agent_index", 0))
         return results
 
-    def _run_single_agent(self, agent_info: Dict, query: str) -> Dict:
+    def _run_single_agent(self, agent_info: dict, query: str) -> dict:
         """单个智能体独立推演"""
         from ..reasoning.hgarn_engine import HGARNEngine
 
@@ -136,7 +136,7 @@ class SwarmCoordinator:
             "confidence": result.confidence if hasattr(result, "confidence") else None,
         }
 
-    def analyze_consensus(self, results: List[Dict]) -> Dict[str, Any]:
+    def analyze_consensus(self, results: list[dict]) -> dict[str, Any]:
         """分析结果中的共识和分歧"""
         # 统计成功推演的智能体
         successful = [r for r in results if r["success"]]
@@ -157,7 +157,7 @@ class SwarmCoordinator:
             "results": successful,
         }
 
-    def generate_report(self, analysis: Dict[str, Any], query: str) -> str:
+    def generate_report(self, analysis: dict[str, Any], query: str) -> str:
         """生成最终综合报告"""
         from ..reasoning.hgarn_engine import HGARNEngine
 
@@ -174,8 +174,8 @@ class SwarmCoordinator:
         return result.final_response
 
     def run(
-        self, query: str, context: Dict[str, Any], memory_palace, plugin_manager
-    ) -> Dict[str, Any]:
+        self, query: str, context: dict[str, Any], memory_palace, plugin_manager
+    ) -> dict[str, Any]:
         """完整运行群体推演"""
         logger.info(f"SwarmCoordinator starting with {self.num_agents} agents")
 

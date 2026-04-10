@@ -6,7 +6,6 @@ ContradictionChecker - 矛盾拦截检测
 """
 
 import logging
-from typing import Dict, List, Tuple
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +22,7 @@ class ContradictionChecker:
         self.similarity_threshold = similarity_threshold
         self.contradiction_threshold = contradiction_threshold
 
-    def check(self, new_statement: str, vector_store) -> Tuple[bool, List[Dict]]:
+    def check(self, new_statement: str, vector_store) -> tuple[bool, list[dict]]:
         """
         检查新陈述是否与已有记忆矛盾
 
@@ -55,7 +54,7 @@ class ContradictionChecker:
 
         return len(contradictions) > 0, contradictions
 
-    def filter_contradictions(self, query: str, results: List[Dict]) -> List[Dict]:
+    def filter_contradictions(self, query: str, results: list[dict]) -> list[dict]:
         """
         从检索结果中过滤掉矛盾记忆
 
@@ -83,7 +82,7 @@ class ContradictionChecker:
                     text_b = result_b.get("text", "")
 
                     if self._detect_contradiction(text_a, text_b):
-                        contradictions_found.append((a, b))
+                        contradictions_found.append((result_a, result_b))
                         # 保留置信度高的那个
                         if result_a.get("confidence", 0) < result_b.get("confidence", 0):
                             is_contradictory = True
@@ -103,18 +102,6 @@ class ContradictionChecker:
         使用简单启发式规则，实际中可交给 LLM 判断
         """
         # 常见矛盾关键词
-        contradiction_patterns = [
-            ("not", "is"),
-            ("never", "always"),
-            ("no", "yes"),
-            ("false", "true"),
-            ("incorrect", "correct"),
-            ("wrong", "right"),
-            ("versus", "vs"),
-            ("vs", "versus"),
-            ("contrary", "opposite"),
-            ("contradicts", "contradiction"),
-        ]
 
         # 快速启发式：检查否定词 + 相同主题
         # 完整检测交给 LLM 在推理阶段处理
@@ -126,13 +113,9 @@ class ContradictionChecker:
         )
 
         # 如果一个肯定一个否定，且主题相似，可能是矛盾
-        if has_negation_a != has_negation_b:
-            # 检查是否有相反断言
-            return True
+        return has_negation_a != has_negation_b
 
-        return False
-
-    def generate_contradiction_warning(self, contradictions: List[Dict]) -> str:
+    def generate_contradiction_warning(self, contradictions: list[dict]) -> str:
         """生成矛盾警告信息"""
         warning = "⚠️ **发现矛盾**：新陈述与记忆中已存事实冲突：\n\n"
         for i, c in enumerate(contradictions, 1):

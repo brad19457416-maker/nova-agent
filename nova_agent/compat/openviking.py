@@ -88,7 +88,7 @@ class OpenVikingImporter:
         export_root = Path(export_path)
         export_root.mkdir(parents=True, exist_ok=True)
 
-        stats = self.memory_palace.get_stats()
+        self.memory_palace.get_stats()
         exported = 0
 
         # 遍历所有 wings

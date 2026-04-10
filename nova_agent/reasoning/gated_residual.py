@@ -5,9 +5,9 @@ Gated Residual Aggregator - 门控残差聚合器
 过滤掉增益低的冗余信息。
 """
 
+import contextlib
 import logging
 from dataclasses import dataclass
-from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -19,7 +19,7 @@ class AggregationResult:
     aggregated_text: str
     gain: float
     num_input_blocks: int
-    gate_scores: List[float]
+    gate_scores: list[float]
 
 
 class GatedResidualAggregator:
@@ -33,7 +33,7 @@ class GatedResidualAggregator:
     def __init__(self, enable_json_compression: bool = True):
         self.enable_json_compression = enable_json_compression
 
-    def aggregate(self, blocks: List[Dict], level: int, context: Dict) -> AggregationResult:
+    def aggregate(self, blocks: list[dict], level: int, context: dict) -> AggregationResult:
         """
         聚合多个块的结果
 
@@ -69,7 +69,7 @@ class GatedResidualAggregator:
 
         # 聚合文本
         aggregated_text = self._generate_aggregated_text(
-            [br for br, _ in filtered_blocks], context["query"] if "query" in context else ""
+            [br for br, _ in filtered_blocks], context.get("query", "")
         )
 
         return AggregationResult(
@@ -79,7 +79,7 @@ class GatedResidualAggregator:
             gate_scores=gate_scores,
         )
 
-    def _calculate_gate_scores(self, blocks: List[Dict], context: Dict) -> List[float]:
+    def _calculate_gate_scores(self, blocks: list[dict], context: dict) -> list[float]:
         """
         计算每个块的门控分数（信息增益）
 
@@ -127,7 +127,7 @@ class GatedResidualAggregator:
 
         return scores
 
-    def _format_blocks_for_scoring(self, blocks: List[Dict]) -> str:
+    def _format_blocks_for_scoring(self, blocks: list[dict]) -> str:
         """格式化块供打分"""
         formatted = ""
         for i, block in enumerate(blocks):
@@ -136,7 +136,7 @@ class GatedResidualAggregator:
             formatted += f"{i+1}. [{desc}]: {result[:300]}\n"
         return formatted
 
-    def _parse_scores(self, response: str, num_blocks: int) -> List[float]:
+    def _parse_scores(self, response: str, num_blocks: int) -> list[float]:
         """解析分数输出"""
         import json
         import re
@@ -151,7 +151,7 @@ class GatedResidualAggregator:
                     while len(scores) < num_blocks:
                         scores.append(0.5)
                     return scores[:num_blocks]
-        except:
+        except Exception:
             pass
 
         # 尝试逐行提取数字
@@ -159,10 +159,8 @@ class GatedResidualAggregator:
         for line in response.split("\n"):
             matches = re.findall(r"[\d\.]+", line)
             for match in matches:
-                try:
+                with contextlib.suppress(BaseException):
                     scores.append(float(match))
-                except:
-                    pass
                 if len(scores) >= num_blocks:
                     break
             if len(scores) >= num_blocks:
@@ -173,7 +171,7 @@ class GatedResidualAggregator:
 
         return scores[:num_blocks]
 
-    def _generate_aggregated_text(self, blocks: List[Dict], query: str) -> str:
+    def _generate_aggregated_text(self, blocks: list[dict], query: str) -> str:
         """生成聚合文本"""
         if len(blocks) == 1:
             # 只有一个块，直接返回
@@ -181,7 +179,7 @@ class GatedResidualAggregator:
 
         # 多个块聚合
         aggregated = f"针对问题「{query}」，聚合结果：\n\n"
-        for i, block in enumerate(blocks):
+        for _i, block in enumerate(blocks):
             aggregated += f"### {block['description']}\n{block['result']}\n\n"
 
         return aggregated

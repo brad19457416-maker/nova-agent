@@ -9,7 +9,7 @@ import logging
 import os
 import subprocess
 import time
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 from .sandbox_base import Sandbox, SandboxResult
 
@@ -19,7 +19,7 @@ logger = logging.getLogger(__name__)
 class LocalSandbox(Sandbox):
     """本地执行沙箱"""
 
-    def __init__(self, config: Dict[str, Any]):
+    def __init__(self, config: dict[str, Any]):
         self.workdir = config.get("workdir", "/tmp/nova-agent-local")
         os.makedirs(self.workdir, exist_ok=True)
 

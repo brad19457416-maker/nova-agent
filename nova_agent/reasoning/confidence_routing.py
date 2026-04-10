@@ -6,7 +6,6 @@ Confidence Router - 置信度路由
 """
 
 import logging
-from typing import Dict, List
 
 logger = logging.getLogger(__name__)
 
@@ -49,7 +48,7 @@ class ConfidenceRouter:
 
         return True
 
-    def filter_by_confidence(self, blocks: List[Dict], min_confidence: float = 0.3) -> List[Dict]:
+    def filter_by_confidence(self, blocks: list[dict], min_confidence: float = 0.3) -> list[dict]:
         """过滤掉置信度低于阈值的块"""
         filtered = [b for b in blocks if b.get("confidence", 0.5) >= min_confidence]
         logger.debug(f"Confidence filtering: {len(blocks)} → {len(filtered)}")

@@ -7,7 +7,7 @@ UserModel - 用户画像建模
 
 import logging
 from collections import defaultdict
-from typing import Any, Dict, Optional, Set
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -21,11 +21,11 @@ class UserModel:
 
     def __init__(self):
         # 偏好统计
-        self.preferences: Dict[str, Dict[str, int]] = defaultdict(lambda: defaultdict(int))
+        self.preferences: dict[str, dict[str, int]] = defaultdict(lambda: defaultdict(int))
         # 任务类型统计
-        self.task_types: Dict[str, int] = defaultdict(int)
+        self.task_types: dict[str, int] = defaultdict(int)
         # 活跃时间
-        self.active_hours: Set[int] = set()
+        self.active_hours: set[int] = set()
         # 交互次数
         self.total_interactions = 0
 
@@ -66,7 +66,7 @@ class UserModel:
         else:
             return "general"
 
-    def get_preferred_style(self) -> Dict[str, Any]:
+    def get_preferred_style(self) -> dict[str, Any]:
         """获取用户偏好风格"""
         # 统计偏好
         preferences = {
@@ -92,13 +92,13 @@ class UserModel:
 
         return base_prompt
 
-    def _get_most_common(self, counter: Dict[str, int]) -> str:
+    def _get_most_common(self, counter: dict[str, int]) -> str:
         """获取出现最多的"""
         if not counter:
             return "general"
         return max(counter.items(), key=lambda x: x[1])[0]
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """获取统计信息"""
         return {
             "total_interactions": self.total_interactions,
@@ -123,6 +123,7 @@ class UserModel:
     def load(self, path: str) -> None:
         """加载用户模型"""
         import json
+        import os
 
         if not path or not os.path.exists(path):
             return

@@ -8,7 +8,7 @@ EvolutionMonitor - 进化监控
 import logging
 from dataclasses import dataclass
 from datetime import datetime
-from typing import Any, Dict, List, Optional
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -28,8 +28,8 @@ class EvolutionMonitor:
     """进化监控器"""
 
     def __init__(self):
-        self.records: List[EvolutionRecord] = []
-        self.task_stats: Dict[str, Dict] = {}
+        self.records: list[EvolutionRecord] = []
+        self.task_stats: dict[str, dict] = {}
 
     def record_evaluation(self, task_type: str, success: bool, confidence: float) -> None:
         """记录一次任务评估"""
@@ -78,7 +78,7 @@ class EvolutionMonitor:
         else:
             logger.warning(f"Evolution step: {improvement:.2%} change")
 
-    def get_evolution_curve(self) -> List[Dict]:
+    def get_evolution_curve(self) -> list[dict]:
         """获取进化曲线数据"""
         curve = []
         cumulative_skills = 0
@@ -95,7 +95,7 @@ class EvolutionMonitor:
 
         return curve
 
-    def get_stats(self) -> Dict[str, Any]:
+    def get_stats(self) -> dict[str, Any]:
         """获取统计信息"""
         return {
             "total_evolution_steps": len(self.records),

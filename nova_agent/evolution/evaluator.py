@@ -7,7 +7,7 @@ Evaluator - 效果评估器
 
 import logging
 from dataclasses import dataclass
-from typing import Any, Dict, Optional
+from typing import Any, Optional
 
 logger = logging.getLogger(__name__)
 
@@ -70,7 +70,7 @@ class Evaluator:
             comment=comment or "No explicit feedback",
         )
 
-    def evaluate_task_result(self, task_result: Dict[str, Any]) -> float:
+    def evaluate_task_result(self, task_result: dict[str, Any]) -> float:
         """评估任务执行结果，返回成功率分数"""
         if not task_result.get("success", True):
             return 0.0
