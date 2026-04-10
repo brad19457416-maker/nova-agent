@@ -1,0 +1,12 @@
+# 存储配置
+
+version: "1.0.0"
+
+# SQLite配置
+sqlite:
+  path: "./data/nova.db"
+  
+# 日志配置
+logging:
+  level: INFO
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"

@@ -13,6 +13,9 @@ Nova Agent v0.3.0 CLI入口
     
     # 查看统计
     python -m nova_agent.v0_3.main stats
+    
+    # 配置LLM
+    python -m nova_agent.v0_3.main config --llm ollama --model qwen2.5:7b
 """
 
 import asyncio
@@ -30,23 +33,42 @@ from nova_agent.v0_3.storage import SQLiteStore
 from nova_agent.v0_3.skills import SkillLoader, AntipatternChecker
 from nova_agent.v0_3.workflow import WorkflowEngine
 from nova_agent.v0_3.collaboration import LeadSubCollaboration
+from nova_agent.v0_3.llm import create_llm_client
+from nova_agent.v0_3.tools import ToolRegistry
 
 
 class NovaAgentCLI:
     """Nova Agent CLI"""
     
     def __init__(self, config_dir: str = "./config", db_path: str = "./data/nova.db"):
+        self.config_dir = config_dir
+        self.db_path = db_path
+        
+        # 初始化组件
         self.config = ConfigManager(config_dir)
         self.storage = SQLiteStore(db_path)
         self.skills = SkillLoader(self.config)
         self.checker = AntipatternChecker(self.config, self.storage)
+        
+        # 获取LLM配置
+        llm_config = self.config.get_section("llm").get("llm", {})
+        self.llm = create_llm_client(llm_config)
+        
+        # 初始化工具
+        self.tools = ToolRegistry()
+        
+        # 初始化工作流引擎
         self.engine = WorkflowEngine(
             self.config, 
             self.skills, 
-            llm_client=None,
+            llm_client=self.llm,
             storage=self.storage,
             antipattern_checker=self.checker
         )
+        
+        # 注入依赖到handlers
+        for handler in self.engine.handlers.values():
+            handler.inject_dependencies(self.llm, self.skills)
     
     async def run_workflow(self, workflow_name: str, task: str) -> Dict:
         """运行工作流"""
@@ -66,7 +88,11 @@ class NovaAgentCLI:
                 print(f"   - [{w['severity']}] {w['name']}")
         
         print(f"\n📄 输出:")
-        print(json.dumps(result.final_output, indent=2, ensure_ascii=False)[:500])
+        output = result.final_output
+        if isinstance(output, dict):
+            print(json.dumps(output, indent=2, ensure_ascii=False)[:800])
+        else:
+            print(str(output)[:800])
         
         return {
             "status": result.status.value,
@@ -93,7 +119,7 @@ class NovaAgentCLI:
         print(f"🤝 运行协作模式: Lead/Sub")
         print(f"📋 任务: {task}\n")
         
-        collab = LeadSubCollaboration(llm_client=None, max_subs=max_subs)
+        collab = LeadSubCollaboration(llm_client=self.llm, max_subs=max_subs)
         result = await collab.execute(task, {"max_subs": max_subs})
         
         print(f"\n✅ 协作完成")
@@ -108,6 +134,22 @@ class NovaAgentCLI:
             "duration_ms": result.duration_ms,
             "output": result.final_result
         }
+    
+    async def run_tool(self, tool_name: str, **kwargs) -> Dict:
+        """运行工具"""
+        print(f"🔧 运行工具: {tool_name}")
+        print(f"📋 参数: {kwargs}\n")
+        
+        result = await self.tools.execute(tool_name, **kwargs)
+        
+        print(f"\n✅ 工具执行: {'成功' if result.success else '失败'}")
+        if result.success:
+            print(f"📄 结果:")
+            print(json.dumps(result.data, indent=2, ensure_ascii=False)[:500])
+        else:
+            print(f"❌ 错误: {result.error}")
+        
+        return {"success": result.success, "data": result.data, "error": result.error}
     
     def show_stats(self) -> Dict:
         """显示统计"""
@@ -132,6 +174,17 @@ class NovaAgentCLI:
         
         return stats
     
+    def show_llm_config(self):
+        """显示LLM配置"""
+        llm_config = self.config.get_section("llm").get("llm", {})
+        print("🔧 LLM 配置:\n")
+        print(f"  类型: {llm_config.get('type', 'mock')}")
+        print(f"  模型: {llm_config.get('model', 'N/A')}")
+        
+        if llm_config.get("type") == "ollama":
+            ollama = llm_config.get("ollama", {})
+            print(f"  地址: {ollama.get('base_url', 'N/A')}")
+    
     def list_workflows(self) -> None:
         """列出工作流"""
         print("📋 可用工作流:\n")
@@ -151,6 +204,20 @@ class NovaAgentCLI:
         for name in skills:
             config = self.skills.get_config(name)
             print(f"  - {name}: {config.description if config else ''}")
+    
+    def list_tools(self) -> None:
+        """列出工具"""
+        print("🛠️ 可用工具:\n")
+        
+        tools = self.tools.list_tools()
+        for name in tools:
+            tool = self.tools.get(name)
+            print(f"  - {name}: {tool.description if tool else ''}")
+    
+    def close(self):
+        """关闭资源"""
+        if hasattr(self.llm, 'close'):
+            asyncio.run(self.llm.close())
 
 
 def main():
@@ -172,12 +239,19 @@ def main():
   # 协作模式
   python -m nova_agent.v0_3.main collab "实现用户系统"
   
+  # 运行工具
+  python -m nova_agent.v0_3.main tool web_search --query "Python教程"
+  
   # 查看统计
   python -m nova_agent.v0_3.main stats
+  
+  # 查看LLM配置
+  python -m nova_agent.v0_3.main config
   
   # 列出资源
   python -m nova_agent.v0_3.main list --workflows
   python -m nova_agent.v0_3.main list --skills
+  python -m nova_agent.v0_3.main list --tools
         """
     )
     
@@ -198,13 +272,23 @@ def main():
     collab_parser.add_argument("task", help="任务描述")
     collab_parser.add_argument("--subs", type=int, default=4, help="Sub Agent数量")
     
+    # tool命令
+    tool_parser = subparsers.add_parser("tool", help="运行工具")
+    tool_parser.add_argument("name", help="工具名称")
+    tool_parser.add_argument("--query", help="搜索查询")
+    tool_parser.add_argument("--url", help="抓取URL")
+    
     # stats命令
     subparsers.add_parser("stats", help="查看统计")
+    
+    # config命令
+    subparsers.add_parser("config", help="查看配置")
     
     # list命令
     list_parser = subparsers.add_parser("list", help="列出资源")
     list_parser.add_argument("--workflows", action="store_true", help="列出工作流")
     list_parser.add_argument("--skills", action="store_true", help="列出技能")
+    list_parser.add_argument("--tools", action="store_true", help="列出工具")
     
     args = parser.parse_args()
     
@@ -224,18 +308,33 @@ def main():
         elif args.command == "collab":
             asyncio.run(cli.run_collab(args.task, args.subs))
         
+        elif args.command == "tool":
+            kwargs = {}
+            if args.query:
+                kwargs["query"] = args.query
+            if args.url:
+                kwargs["url"] = args.url
+            asyncio.run(cli.run_tool(args.name, **kwargs))
+        
         elif args.command == "stats":
             cli.show_stats()
+        
+        elif args.command == "config":
+            cli.show_llm_config()
         
         elif args.command == "list":
             if args.workflows:
                 cli.list_workflows()
             elif args.skills:
                 cli.list_skills()
+            elif args.tools:
+                cli.list_tools()
             else:
                 cli.list_workflows()
                 print()
                 cli.list_skills()
+                print()
+                cli.list_tools()
     
     except KeyboardInterrupt:
         print("\n\n⚠️ 用户中断")
@@ -243,6 +342,8 @@ def main():
         print(f"\n❌ 错误: {e}")
         import traceback
         traceback.print_exc()
+    finally:
+        cli.close()
 
 
 if __name__ == "__main__":
