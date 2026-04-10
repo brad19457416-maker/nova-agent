@@ -5,7 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="nova-agent",
-    version="0.1.1",
+    version="0.3.0",
     author="Nova Agent Team",
     description="新一代自主智能体 —— 融合五大前沿开源项目精华",
     long_description=long_description,
