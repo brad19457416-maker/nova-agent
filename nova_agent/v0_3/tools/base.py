@@ -58,10 +58,19 @@ class ToolRegistry:
         """注册内置工具"""
         from .web import WebSearchTool, WebFetchTool
         from .code import CodeExecutionTool
+        from .files import (
+            FileReadTool, FileWriteTool, FileListTool,
+            JsonReadTool, JsonWriteTool
+        )
         
         self.register(WebSearchTool())
         self.register(WebFetchTool())
         self.register(CodeExecutionTool())
+        self.register(FileReadTool())
+        self.register(FileWriteTool())
+        self.register(FileListTool())
+        self.register(JsonReadTool())
+        self.register(JsonWriteTool())
     
     def register(self, tool: BaseTool):
         """注册工具"""

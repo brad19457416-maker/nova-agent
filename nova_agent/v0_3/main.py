@@ -275,8 +275,7 @@ def main():
     # tool命令
     tool_parser = subparsers.add_parser("tool", help="运行工具")
     tool_parser.add_argument("name", help="工具名称")
-    tool_parser.add_argument("--query", help="搜索查询")
-    tool_parser.add_argument("--url", help="抓取URL")
+    tool_parser.add_argument("--params", help="工具参数(JSON格式)", default="{}")
     
     # stats命令
     subparsers.add_parser("stats", help="查看统计")
@@ -309,11 +308,12 @@ def main():
             asyncio.run(cli.run_collab(args.task, args.subs))
         
         elif args.command == "tool":
-            kwargs = {}
-            if args.query:
-                kwargs["query"] = args.query
-            if args.url:
-                kwargs["url"] = args.url
+            import json
+            try:
+                kwargs = json.loads(args.params)
+            except json.JSONDecodeError:
+                print("❌ 参数必须是有效的JSON格式")
+                return
             asyncio.run(cli.run_tool(args.name, **kwargs))
         
         elif args.command == "stats":

@@ -5,7 +5,7 @@ version: "1.0.0"
 # LLM客户端配置
 llm:
   # 类型: mock | ollama | openclaw
-  type: mock
+  type: ollama
   
   # 模型名称
   model: qwen2.5:7b
