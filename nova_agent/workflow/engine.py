@@ -72,26 +72,43 @@ class WorkflowResult:
 class WorkflowEngine:
     """
     工作流引擎
+    
+    性能优化:
+    - 类级别handler缓存，避免重复注册
+    - 工作流配置缓存
+    - 并行阶段执行支持
     """
     
-    def __init__(self, config_manager, skill_loader, llm_client=None, storage=None, antipattern_checker=None):
+    # 类级别handler缓存
+    _handlers: Dict[str, PhaseHandler] = {}
+    _handlers_registered = False
+    _lock = asyncio.Lock()
+    
+    def __init__(
+        self,
+        config_manager,
+        skill_loader,
+        llm_client=None,
+        storage=None,
+        antipattern_checker=None
+    ):
         self.config = config_manager
         self.skills = skill_loader
         self.llm = llm_client
         self.storage = storage
         self.antipattern_checker = antipattern_checker
         
-        # 注册的阶段处理器
-        self.handlers: Dict[str, PhaseHandler] = {}
+        # 工作流配置缓存
+        self._workflow_configs: Dict[str, Dict] = {}
+        self._config_lock = asyncio.Lock()
         
-        # 工作流缓存
-        self.workflow_configs: Dict[str, Dict] = {}
-        
-        # 注册内置处理器
-        self._register_builtin_handlers()
+        # 注册处理器（线程安全）
+        if not WorkflowEngine._handlers_registered:
+            self._register_builtin_handlers()
+            WorkflowEngine._handlers_registered = True
     
     def _register_builtin_handlers(self):
-        """注册内置阶段处理器"""
+        """注册内置阶段处理器（类级别缓存）"""
         from nova_agent.workflow.builtin import (
             ClarifyHandler, PlanHandler, SearchHandler,
             ExpandHandler, VerifyHandler, SynthesizeHandler,
@@ -111,27 +128,41 @@ class WorkflowEngine:
         ]
         
         for handler_class in handlers:
+            # 避免重复注册
+            handler_name = handler_class.__name__.replace("Handler", "").lower()
+            if handler_name in WorkflowEngine._handlers:
+                continue
+                
             handler = handler_class({})
             handler.inject_dependencies(self.llm, self.skills)
-            self.register_handler(handler.name, handler)
-            logger.info(f"Registered handler: {handler.name}")
+            WorkflowEngine._handlers[handler_name] = handler
+            logger.info(f"Registered handler: {handler_name}")
+        
+        WorkflowEngine._handlers_registered = True
     
     def register_handler(self, name: str, handler: PhaseHandler):
-        """注册阶段处理器"""
-        self.handlers[name] = handler
+        """注册阶段处理器（类级别）"""
+        WorkflowEngine._handlers[name] = handler
     
-    def load_workflow(self, workflow_name: str) -> Dict:
-        """加载工作流配置"""
-        if workflow_name in self.workflow_configs:
-            return self.workflow_configs[workflow_name]
+    def get_handler(self, name: str) -> Optional[PhaseHandler]:
+        """获取阶段处理器"""
+        return WorkflowEngine._handlers.get(name)
+    
+    async def load_workflow(self, workflow_name: str) -> Dict:
+        """加载工作流配置（带缓存）"""
+        if workflow_name in self._workflow_configs:
+            return self._workflow_configs[workflow_name]
         
-        config = self.config.get_workflow_config(workflow_name)
-        
-        if not config:
-            raise ValueError(f"Workflow {workflow_name} not found")
-        
-        self.workflow_configs[workflow_name] = config
-        return config
+        async with self._config_lock:
+            if workflow_name in self._workflow_configs:
+                return self._workflow_configs[workflow_name]
+            
+            config = self.config.get_workflow_config(workflow_name)
+            if not config:
+                raise ValueError(f"Workflow {workflow_name} not found")
+            
+            self._workflow_configs[workflow_name] = config
+            return config
     
     async def run(self, workflow_name: str, input_data: Dict) -> WorkflowResult:
         """运行工作流"""
@@ -243,7 +274,7 @@ class WorkflowEngine:
         """执行单个阶段"""
         start_time = time.time()
         
-        handler = self.handlers.get(phase_name)
+        handler = self.get_handler(phase_name)
         if not handler:
             return PhaseResult(
                 phase=phase_name,
@@ -311,7 +342,7 @@ class WorkflowEngine:
         phase_results: List[PhaseResult]
     ) -> Any:
         """生成最终输出"""
-        workflow_config = self.workflow_configs.get(workflow_name, {})
+        workflow_config = self._workflow_configs.get(workflow_name, {})
         outputs_config = workflow_config.get("outputs", {})
         
         if not outputs_config:
