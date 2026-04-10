@@ -5,7 +5,7 @@ UserModel - 用户画像建模
 实现个性化适配。
 """
 
-from typing import Dict, Any, List, Set
+from typing import Dict, Any, List, Set, Optional
 from collections import defaultdict
 import logging
 

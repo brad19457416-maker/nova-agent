@@ -4,7 +4,6 @@ LLM Client Base - LLM 客户端抽象基类
 支持多种后端，可插拔替换。
 """
 
-from typing import str
 from abc import ABC, abstractmethod
 
 

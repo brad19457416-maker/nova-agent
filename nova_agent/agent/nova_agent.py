@@ -13,7 +13,7 @@ from ..memory.temporal_graph import TemporalFactGraph
 from ..reasoning.hgarn_engine import HGARNEngine
 from ..evolution.evaluator import Evaluator
 from ..evolution.optimizer import StrategyOptimizer
-from ..evolution.skill_learning import SkillLearner
+from ..evolution.skill_learn import SkillLearner
 from ..evolution.user_model import UserModel
 from ..evolution.monitoring import EvolutionMonitor
 from ..tools.plugin_manager import PluginManager

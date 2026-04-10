@@ -19,7 +19,7 @@ from .bidirectional_attn import BidirectionalAttentionFlow
 from .confidence_routing import ConfidenceRouter
 from .lateral_inhibition import AdaptiveLateralInhibition
 from .wta import WTASelection
-from ..llm.client import LLMClient
+from ..llm.client_base import LLMClient
 
 logger = logging.getLogger(__name__)
 
@@ -94,7 +94,7 @@ class HGARNEngine:
         # 初始化组件
         self.gated_aggregator = GatedResidualAggregator()
         self.bidirectional_attn = BidirectionalAttentionFlow(
-            gain_threshold=reverse_activation_gain_threshold
+            reverse_threshold=reverse_activation_gain_threshold
         )
         self.confidence_router = ConfidenceRouter(
             min_gate=min_gate_for_continue,

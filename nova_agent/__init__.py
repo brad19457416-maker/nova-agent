@@ -12,7 +12,7 @@ Nova Agent - 新一代自主智能体
 - 🎯 可组合技能渐进加载
 """
 
-__version__ = "0.1.0"
+__version__ = "0.1.1"
 __author__ = "Nova Agent Team"
 
 from .agent.nova_agent import NovaAgent

@@ -5,7 +5,7 @@ EvolutionMonitor - 进化监控
 可视化进化曲线。
 """
 
-from typing import Dict, Any, List
+from typing import Dict, Any, List, Optional
 from dataclasses import dataclass
 import logging
 from datetime import datetime

@@ -5,7 +5,7 @@ Confidence Router - 置信度路由
 达到阈值提前停止，节省 token。
 """
 
-from typing import List, float
+from typing import List, Dict
 import logging
 
 logger = logging.getLogger(__name__)

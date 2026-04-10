@@ -8,7 +8,7 @@ AAAK Compressor - Adaptive Ascii-Art Aware Compression
 - 通常可达 5-8x 压缩率
 """
 
-from typing import str, List, Dict, Any
+from typing import List, Dict, Any
 import re
 
 
