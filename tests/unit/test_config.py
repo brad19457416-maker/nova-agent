@@ -2,9 +2,9 @@
 配置系统单元测试
 """
 
-import pytest
-import tempfile
 import os
+import tempfile
+
 from nova_agent.config import Config
 
 
@@ -115,7 +115,7 @@ class TestConfigPersistence:
         config = Config.default()
         config.update({"max_levels": 7, "block_size": 12})
 
-        with tempfile.NamedTemporaryFile(mode='w', suffix='.json', delete=False) as f:
+        with tempfile.NamedTemporaryFile(mode="w", suffix=".json", delete=False) as f:
             temp_path = f.name
 
         try:

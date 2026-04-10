@@ -1,7 +1,7 @@
 """Agent 核心模块"""
 
-from .nova_agent import NovaAgent
 from .lead_agent import LeadAgent
+from .nova_agent import NovaAgent
 from .sub_agent import SubAgent
 from .swarm_coordinator import SwarmCoordinator
 

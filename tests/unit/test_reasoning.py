@@ -2,11 +2,10 @@
 推理引擎单元测试
 """
 
-import pytest
-from nova_agent.reasoning.hgarn_engine import HGARNEngine, ReasoningResult
-from nova_agent.reasoning.gated_residual import GatedResidualAggregator
-from nova_agent.reasoning.confidence_routing import ConfidenceRouter
 from nova_agent.reasoning.bidirectional_attn import BidirectionalAttentionFlow
+from nova_agent.reasoning.confidence_routing import ConfidenceRouter
+from nova_agent.reasoning.gated_residual import GatedResidualAggregator
+from nova_agent.reasoning.hgarn_engine import HGARNEngine
 from nova_agent.reasoning.wta import WTASelection
 
 
@@ -24,11 +23,12 @@ class TestGatedResidualAggregator:
 
         # 模拟子任务结果
         subtask_results = [
-            {"content": "结果1", "confidence": 0.8},
-            {"content": "结果2", "confidence": 0.9},
+            {"content": "结果1", "result": "详细结果1", "confidence": 0.8},
+            {"content": "结果2", "result": "详细结果2", "confidence": 0.9},
         ]
 
-        result = aggregator.aggregate(subtask_results, level=1)
+        context = {"task": "测试任务"}
+        result = aggregator.aggregate(subtask_results, level=1, context=context)
         assert result is not None
 
 
@@ -46,10 +46,13 @@ class TestConfidenceRouter:
         router = ConfidenceRouter(min_gate=0.15, cumulative_threshold=2.5)
 
         # 累积增益足够高，应该停止
-        assert router.should_continue(3.0, level=2) is False
+        assert router.should_continue(0.5, 3.0) is False
 
         # 累积增益不够，应该继续
-        assert router.should_continue(1.0, level=2) is True
+        assert router.should_continue(0.5, 1.0) is True
+
+        # 当前增益太小，应该停止
+        assert router.should_continue(0.1, 1.0) is False
 
     def test_filter_by_confidence(self):
         """测试按置信度过滤"""
@@ -61,7 +64,7 @@ class TestConfidenceRouter:
             {"id": 3, "confidence": 0.8},
         ]
 
-        filtered = router.filter_by_confidence(blocks)
+        filtered = router.filter_by_confidence(blocks, min_confidence=0.5)
         assert len(filtered) == 2
         assert all(b["confidence"] >= 0.5 for b in filtered)
 
@@ -94,22 +97,35 @@ class TestWTASelection:
         assert wta is not None
         assert wta.max_activate == 7
 
-    def test_select_top_k(self):
-        """测试选择前K个"""
+    def test_select_with_query(self):
+        """测试使用查询选择"""
         wta = WTASelection(max_activate=3)
 
         items = [
-            {"id": 1, "score": 0.5},
-            {"id": 2, "score": 0.9},
-            {"id": 3, "score": 0.3},
-            {"id": 4, "score": 0.8},
-            {"id": 5, "score": 0.7},
+            {"id": 1, "similarity": 0.5},
+            {"id": 2, "similarity": 0.9},
+            {"id": 3, "similarity": 0.3},
+            {"id": 4, "similarity": 0.8},
+            {"id": 5, "similarity": 0.7},
         ]
 
-        selected = wta.select(items, key=lambda x: x["score"])
+        selected = wta.select(items, query="测试查询")
         assert len(selected) <= 3
         # 最高分应该被选中
-        assert items[1] in selected  # score 0.9
+        assert items[1] in selected  # similarity 0.9
+
+    def test_select_no_similarity(self):
+        """测试没有similarity字段的情况"""
+        wta = WTASelection(max_activate=2)
+
+        items = [
+            {"id": 1, "gain": 0.5},
+            {"id": 2, "gain": 0.9},
+            {"id": 3, "gain": 0.3},
+        ]
+
+        selected = wta.select(items, query="测试")
+        assert len(selected) <= 2
 
 
 class TestHGARNEngine:
@@ -117,11 +133,7 @@ class TestHGARNEngine:
 
     def test_engine_creation(self):
         """测试引擎创建"""
-        engine = HGARNEngine(
-            block_size=8,
-            max_blocks_per_level=2,
-            max_levels=3
-        )
+        engine = HGARNEngine(block_size=8, max_blocks_per_level=2, max_levels=3)
         assert engine is not None
         assert engine.block_size == 8
 

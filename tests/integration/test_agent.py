@@ -2,9 +2,9 @@
 集成测试 - 测试完整工作流
 """
 
-import pytest
-import tempfile
 import shutil
+import tempfile
+
 from nova_agent import NovaAgent
 from nova_agent.config import Config
 
