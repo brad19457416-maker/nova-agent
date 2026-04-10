@@ -3,19 +3,19 @@ Nova Agent v0.3.0 CLI入口
 
 使用示例:
     # 运行工作流
-    python -m nova_agent.v0_3.main workflow research "调研Python异步编程"
+    python -m nova_agent.main workflow research "调研Python异步编程"
     
     # 使用技能
-    python -m nova_agent.v0_3.main skill research_skill "分析代码性能"
+    python -m nova_agent.main skill research_skill "分析代码性能"
     
     # 协作模式
-    python -m nova_agent.v0_3.main collab "实现用户系统"
+    python -m nova_agent.main collab "实现用户系统"
     
     # 查看统计
-    python -m nova_agent.v0_3.main stats
+    python -m nova_agent.main stats
     
     # 配置LLM
-    python -m nova_agent.v0_3.main config --llm ollama --model qwen2.5:7b
+    python -m nova_agent.main config --llm ollama --model qwen2.5:7b
 """
 
 import asyncio
@@ -28,13 +28,13 @@ from typing import Dict, Any
 # 添加父目录到路径
 sys.path.insert(0, str(Path(__file__).parent.parent.parent))
 
-from nova_agent.v0_3.config import ConfigManager
-from nova_agent.v0_3.storage import SQLiteStore
-from nova_agent.v0_3.skills import SkillLoader, AntipatternChecker
-from nova_agent.v0_3.workflow import WorkflowEngine
-from nova_agent.v0_3.collaboration import LeadSubCollaboration
-from nova_agent.v0_3.llm import create_llm_client
-from nova_agent.v0_3.tools import ToolRegistry
+from nova_agent.config import ConfigManager
+from nova_agent.storage import SQLiteStore
+from nova_agent.skills import SkillLoader, AntipatternChecker
+from nova_agent.workflow import WorkflowEngine
+from nova_agent.collaboration import LeadSubCollaboration
+from nova_agent.llm import create_llm_client
+from nova_agent.tools import ToolRegistry
 
 
 class NovaAgentCLI:
@@ -228,30 +228,30 @@ def main():
         epilog="""
 示例:
   # 运行调研工作流
-  python -m nova_agent.v0_3.main workflow research "调研Python异步编程"
+  python -m nova_agent.main workflow research "调研Python异步编程"
   
   # 运行写作工作流
-  python -m nova_agent.v0_3.main workflow writing "写一章科幻小说"
+  python -m nova_agent.main workflow writing "写一章科幻小说"
   
   # 使用技能
-  python -m nova_agent.v0_3.main skill research_skill "分析代码"
+  python -m nova_agent.main skill research_skill "分析代码"
   
   # 协作模式
-  python -m nova_agent.v0_3.main collab "实现用户系统"
+  python -m nova_agent.main collab "实现用户系统"
   
   # 运行工具
-  python -m nova_agent.v0_3.main tool web_search --query "Python教程"
+  python -m nova_agent.main tool web_search --query "Python教程"
   
   # 查看统计
-  python -m nova_agent.v0_3.main stats
+  python -m nova_agent.main stats
   
   # 查看LLM配置
-  python -m nova_agent.v0_3.main config
+  python -m nova_agent.main config
   
   # 列出资源
-  python -m nova_agent.v0_3.main list --workflows
-  python -m nova_agent.v0_3.main list --skills
-  python -m nova_agent.v0_3.main list --tools
+  python -m nova_agent.main list --workflows
+  python -m nova_agent.main list --skills
+  python -m nova_agent.main list --tools
         """
     )
     

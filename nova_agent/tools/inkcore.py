@@ -4,7 +4,7 @@ Inkcore 工具集成
 为 NC 提供技法查询和章节分析能力
 
 使用方法:
-    from nova_agent.v0_3.tools.inkcore import InkcoreTool
+    from nova_agent.tools.inkcore import InkcoreTool
     
     tool = InkcoreTool(base_url="http://localhost:8000")
     

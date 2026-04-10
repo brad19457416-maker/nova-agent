@@ -1,7 +1,14 @@
-"""多智能体协作模式模块"""
+"""
+协作系统
+"""
 
-from .agency_collaboration import AgencyCollaboration
 from .lead_sub import LeadSubCollaboration
-from .swarm_collaboration import SwarmCollaboration
+from .swarm import SwarmCollaboration
+from .roles import AgentRole, AgentState
 
-__all__ = ["AgencyCollaboration", "LeadSubCollaboration", "SwarmCollaboration"]
+__all__ = [
+    "LeadSubCollaboration",
+    "SwarmCollaboration", 
+    "AgentRole",
+    "AgentState"
+]

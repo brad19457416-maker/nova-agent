@@ -58,3 +58,4 @@ Thumbs.db
 /tmp/
 nova_memory/
 temp_*.py
+.migration_backup/

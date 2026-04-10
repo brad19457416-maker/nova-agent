@@ -92,7 +92,7 @@ class WorkflowEngine:
     
     def _register_builtin_handlers(self):
         """注册内置阶段处理器"""
-        from nova_agent.v0_3.workflow.builtin import (
+        from nova_agent.workflow.builtin import (
             ClarifyHandler, PlanHandler, SearchHandler,
             ExpandHandler, VerifyHandler, SynthesizeHandler,
             OutlineHandler, DraftHandler, ReviewHandler,

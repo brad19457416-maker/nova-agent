@@ -1,10 +1,11 @@
 """
-Nova Agent - 新一代自主智能体框架
-融合五大前沿开源项目精华，专为 OpenClaw 重新设计
+Nova Agent v0.3.0
+
+通用自主智能体框架 + 深度研究专家
 """
 
 __version__ = "0.3.0"
 
-from nova_agent.agent.nova_agent import NovaAgent
+from .config import ConfigManager
 
-__all__ = ["NovaAgent"]
+__all__ = ["ConfigManager"]

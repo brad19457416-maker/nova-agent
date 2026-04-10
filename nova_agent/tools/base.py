@@ -1,176 +1,112 @@
 """
-工具系统基础类
+工具基类
 """
 
 from abc import ABC, abstractmethod
-from dataclasses import dataclass, field
-from typing import Any, Dict, Optional, List
-from datetime import datetime
-import json
+from typing import Dict, Any, List, Optional
+from dataclasses import dataclass
+import logging
 
-
-@dataclass
-class ToolParameter:
-    """工具参数定义"""
-    name: str
-    type: str  # string, number, boolean, array, object
-    description: str
-    required: bool = True
-    default: Any = None
-    enum: List[str] = field(default_factory=list)
+logger = logging.getLogger(__name__)
 
 
 @dataclass
 class ToolResult:
     """工具执行结果"""
     success: bool
-    data: Any = None
+    data: Any
     error: str = ""
-    metadata: Dict[str, Any] = field(default_factory=dict)
-    
-    def to_dict(self) -> Dict:
-        return {
-            "success": self.success,
-            "data": self.data,
-            "error": self.error,
-            "metadata": self.metadata
-        }
+    metadata: Dict = None
 
 
 class BaseTool(ABC):
-    """
-    工具基类
+    """工具基类"""
     
-    所有工具都必须继承此类并实现execute方法
-    """
+    name: str = ""
+    description: str = ""
+    parameters: Dict = None
     
-    def __init__(
-        self,
-        name: str,
-        description: str,
-        parameters: List[ToolParameter] = None
-    ):
-        self.name = name
-        self.description = description
-        self.parameters = parameters or []
-        self.usage_count = 0
-        self.last_used = None
+    def __init__(self, config: Dict = None):
+        self.config = config or {}
     
     @abstractmethod
     async def execute(self, **kwargs) -> ToolResult:
-        """
-        执行工具
-        
-        Args:
-            **kwargs: 工具参数
-            
-        Returns:
-            ToolResult: 执行结果
-        """
+        """执行工具"""
         pass
     
     def get_schema(self) -> Dict:
-        """获取工具的JSON Schema"""
+        """获取工具schema"""
         return {
             "name": self.name,
             "description": self.description,
-            "parameters": {
-                "type": "object",
-                "properties": {
-                    p.name: {
-                        "type": p.type,
-                        "description": p.description,
-                        "default": p.default,
-                        "enum": p.enum
-                    }
-                    for p in self.parameters
-                },
-                "required": [p.name for p in self.parameters if p.required]
-            }
-        }
-    
-    def validate_params(self, params: Dict) -> tuple[bool, str]:
-        """
-        验证参数
-        
-        Returns:
-            (is_valid, error_message)
-        """
-        for param in self.parameters:
-            if param.required and param.name not in params:
-                return False, f"Missing required parameter: {param.name}"
-            
-            if param.name in params:
-                value = params[param.name]
-                expected_type = param.type
-                
-                # 类型检查
-                if expected_type == "string" and not isinstance(value, str):
-                    return False, f"Parameter {param.name} must be string"
-                elif expected_type == "number" and not isinstance(value, (int, float)):
-                    return False, f"Parameter {param.name} must be number"
-                elif expected_type == "boolean" and not isinstance(value, bool):
-                    return False, f"Parameter {param.name} must be boolean"
-                elif expected_type == "array" and not isinstance(value, list):
-                    return False, f"Parameter {param.name} must be array"
-                elif expected_type == "object" and not isinstance(value, dict):
-                    return False, f"Parameter {param.name} must be object"
-                
-                # 枚举检查
-                if param.enum and value not in param.enum:
-                    return False, f"Parameter {param.name} must be one of {param.enum}"
-        
-        return True, ""
-    
-    def record_usage(self):
-        """记录使用情况"""
-        self.usage_count += 1
-        self.last_used = datetime.now()
-    
-    def get_stats(self) -> Dict:
-        """获取使用统计"""
-        return {
-            "name": self.name,
-            "usage_count": self.usage_count,
-            "last_used": self.last_used.isoformat() if self.last_used else None
+            "parameters": self.parameters or {}
         }
 
 
-class ToolCollection:
+class ToolRegistry:
     """
-    工具集合
-    管理多个工具的分组
+    工具注册表
+    
+    管理所有可用工具
     """
     
-    def __init__(self, name: str, description: str = ""):
-        self.name = name
-        self.description = description
+    def __init__(self):
         self.tools: Dict[str, BaseTool] = {}
+        self._register_builtin_tools()
     
-    def add(self, tool: BaseTool):
-        """添加工具"""
+    def _register_builtin_tools(self):
+        """注册内置工具"""
+        from .web import WebSearchTool, WebFetchTool
+        from .code import CodeExecutionTool
+        from .files import (
+            FileReadTool, FileWriteTool, FileListTool,
+            JsonReadTool, JsonWriteTool
+        )
+        from .inkcore import InkcoreTool, MockInkcoreTool
+        
+        self.register(WebSearchTool())
+        self.register(WebFetchTool())
+        self.register(CodeExecutionTool())
+        self.register(FileReadTool())
+        self.register(FileWriteTool())
+        self.register(FileListTool())
+        self.register(JsonReadTool())
+        self.register(JsonWriteTool())
+        self.register(MockInkcoreTool())  # 使用模拟版本，避免依赖外部服务
+    
+    def register(self, tool: BaseTool):
+        """注册工具"""
         self.tools[tool.name] = tool
+        logger.info(f"Registered tool: {tool.name}")
     
     def get(self, name: str) -> Optional[BaseTool]:
         """获取工具"""
         return self.tools.get(name)
     
-    def remove(self, name: str) -> bool:
-        """移除工具"""
-        if name in self.tools:
-            del self.tools[name]
-            return True
-        return False
-    
     def list_tools(self) -> List[str]:
         """列出所有工具"""
         return list(self.tools.keys())
     
-    def search(self, keyword: str) -> List[BaseTool]:
-        """搜索工具"""
-        results = []
-        for tool in self.tools.values():
-            if (keyword.lower() in tool.name.lower() or 
-                keyword.lower() in tool.description.lower()):
-                results.append(tool)
-        return results
+    def get_schemas(self) -> List[Dict]:
+        """获取所有工具schema"""
+        return [tool.get_schema() for tool in self.tools.values()]
+    
+    async def execute(self, tool_name: str, **kwargs) -> ToolResult:
+        """执行工具"""
+        tool = self.get(tool_name)
+        if not tool:
+            return ToolResult(
+                success=False,
+                data=None,
+                error=f"Tool not found: {tool_name}"
+            )
+        
+        try:
+            return await tool.execute(**kwargs)
+        except Exception as e:
+            logger.error(f"Tool execution failed: {tool_name} - {e}")
+            return ToolResult(
+                success=False,
+                data=None,
+                error=str(e)
+            )

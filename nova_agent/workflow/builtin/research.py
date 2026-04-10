@@ -3,7 +3,7 @@
 """
 
 from typing import Dict, Any
-from nova_agent.v0_3.workflow.base import PhaseHandler
+from nova_agent.workflow.base import PhaseHandler
 import logging
 
 logger = logging.getLogger(__name__)

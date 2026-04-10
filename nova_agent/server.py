@@ -5,10 +5,10 @@ FastAPI实现的HTTP API
 
 使用:
     # 启动服务
-    python -m nova_agent.v0_3.server
+    python -m nova_agent.server
     
     # 或使用uvicorn
-    uvicorn nova_agent.v0_3.server:app --host 0.0.0.0 --port 8080
+    uvicorn nova_agent.server:app --host 0.0.0.0 --port 8080
 
 API端点:
     GET  /health          - 健康检查
@@ -257,7 +257,7 @@ def main():
     
     import uvicorn
     uvicorn.run(
-        "nova_agent.v0_3.server:app",
+        "nova_agent.server:app",
         host="0.0.0.0",
         port=8080,
         reload=True

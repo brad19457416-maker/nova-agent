@@ -1,7 +1,8 @@
-"""技能管理模块"""
+"""
+技能系统
+"""
 
-from .skill_def import Skill
-from .skill_index import SkillIndex
-from .skill_loader import SkillLoader
+from .loader import SkillLoader, SkillConfig
+from .antipatterns import AntipatternChecker, Antipattern
 
-__all__ = ["Skill", "SkillLoader", "SkillIndex"]
+__all__ = ["SkillLoader", "SkillConfig", "AntipatternChecker", "Antipattern"]
