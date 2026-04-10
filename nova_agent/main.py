@@ -23,10 +23,7 @@ import argparse
 import json
 import sys
 from pathlib import Path
-from typing import Dict, Any
-
-# 添加父目录到路径
-sys.path.insert(0, str(Path(__file__).parent.parent.parent))
+from typing import Dict, Any, Optional
 
 from nova_agent.config import ConfigManager
 from nova_agent.storage import SQLiteStore
@@ -38,9 +35,31 @@ from nova_agent.tools import ToolRegistry
 
 
 class NovaAgentCLI:
-    """Nova Agent CLI"""
+    """Nova Agent 命令行接口
+
+    提供交互式CLI和程序化API两种使用方式。
+
+    Attributes:
+        config: 配置管理器实例
+        storage: SQLite存储实例
+        skills: 技能加载器实例
+        llm: LLM客户端实例
+        engine: 工作流引擎实例
+
+    Example:
+        >>> cli = NovaAgentCLI(config_dir="./config")
+        >>> result = await cli.run_workflow("research", "Python异步")
+        >>> print(result["status"])
+        'completed'
+    """
     
     def __init__(self, config_dir: str = "./config", db_path: str = "./data/nova.db"):
+        """初始化CLI
+
+        Args:
+            config_dir: 配置目录路径，默认"./config"
+            db_path: SQLite数据库路径，默认"./data/nova.db"
+        """
         self.config_dir = config_dir
         self.db_path = db_path
         
@@ -70,8 +89,20 @@ class NovaAgentCLI:
         for handler in self.engine.handlers.values():
             handler.inject_dependencies(self.llm, self.skills)
     
-    async def run_workflow(self, workflow_name: str, task: str) -> Dict:
-        """运行工作流"""
+    async def run_workflow(self, workflow_name: str, task: str) -> Dict[str, Any]:
+        """运行工作流
+
+        Args:
+            workflow_name: 工作流名称 (research/writing/code)
+            task: 任务描述
+
+        Returns:
+            包含状态、执行时间和输出的字典
+
+        Example:
+            >>> result = await cli.run_workflow("research", "Python异步编程")
+            >>> print(result["status"])  # "completed"
+        """
         print(f"🚀 运行工作流: {workflow_name}")
         print(f"📋 任务: {task}\n")
         
