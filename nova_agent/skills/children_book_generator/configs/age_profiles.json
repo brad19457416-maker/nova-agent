@@ -1,0 +1,31 @@
+{
+  "profiles": [
+    {
+      "name": "0-3岁",
+      "min_age": 0,
+      "max_age": 3,
+      "default_pages": 16,
+      "max_words_per_page": 20,
+      "description": "认知启蒙，重复韵律，大色块",
+      "style_suggestion": "bright cartoon, high contrast colors"
+    },
+    {
+      "name": "3-6岁",
+      "min_age": 3,
+      "max_age": 6,
+      "default_pages": 24,
+      "max_words_per_page": 50,
+      "description": "简单故事，品德启蒙，想象力培养",
+      "style_suggestion": "watercolor, soft colors"
+    },
+    {
+      "name": "6-12岁",
+      "min_age": 6,
+      "max_age": 12,
+      "default_pages": 36,
+      "max_words_per_page": 100,
+      "description": "章节故事，知识科普，成长主题",
+      "style_suggestion": "detailed illustration, rich colors"
+    }
+  ]
+}

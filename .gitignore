@@ -20,11 +20,18 @@ wheels/
 .installed.cfg
 *.egg
 
+# Testing
+.pytest_cache/
+.coverage
+htmlcov/
+.tox/
+
 # Virtual environments
 venv/
 ENV/
 env/
 .venv
+.env
 
 # IDE
 .vscode/
@@ -33,18 +40,13 @@ env/
 *.swo
 *~
 
-# Testing
-.pytest_cache/
-.coverage
-htmlcov/
-.tox/
-
 # Data
 data/
+output/
+nova_output/
 *.db
 *.sqlite
-*.json
-!config.json
+*.log
 
 # Logs
 logs/
@@ -59,3 +61,7 @@ Thumbs.db
 nova_memory/
 temp_*.py
 .migration_backup/
+
+# Config with secrets
+config.json
+.env.local

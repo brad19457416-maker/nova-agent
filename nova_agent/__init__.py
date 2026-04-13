@@ -1,33 +1,20 @@
 """
-Nova Agent v0.3.0
+Nova Agent - 新一代自主智能体
 
-通用自主智能体框架 + 深度研究专家
+融合五大前沿开源项目精华，重新设计从零开始。
 
-示例:
-    >>> from nova_agent import ConfigManager
-    >>> config = ConfigManager("./config")
-    >>> print(config.get("llm.model"))
-
-主要模块:
-    - config: 配置管理
-    - workflow: 工作流引擎
-    - llm: LLM客户端
-    - skills: 技能系统
-    - tools: 工具系统
-    - storage: 存储系统
-    - collaboration: 协作系统
-
-更多信息:
-    - 使用指南: https://github.com/brad19457416-maker/nova-agent/blob/master/USAGE.md
-    - API文档: https://github.com/brad19457416-maker/nova-agent/blob/master/docs/API.md
+- 🏛️ 五级宫殿记忆 + 时序事实图谱
+- 🔥 层次化门控注意力残差推理（双向注意力流）
+- 🧬 完整自主进化闭环
+- 👥 四种协作模式（直接回答 / Lead/Sub / Swarm / Agency）
+- 🔌 插件化工具系统
+- 🐳 Docker 沙箱执行环境
+- 🎯 可组合技能渐进加载
 """
 
 __version__ = "0.3.0"
+__author__ = "Nova Agent Team"
 
-# 导出主要类
-from nova_agent.config import ConfigManager
+from .agent.nova_agent import NovaAgent
 
-__all__ = [
-    "__version__",
-    "ConfigManager",
-]
+__all__ = ["NovaAgent", "__version__", "__author__"]

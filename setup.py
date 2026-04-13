@@ -5,9 +5,13 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="nova-agent",
+<<<<<<< HEAD
     version="0.3.0",
+=======
+    version="0.2.0",
+>>>>>>> fffb151 (P0 improvements: add .gitignore, GitHub Actions CI, bump version to v0.2.0)
     author="Nova Agent Team",
-    description="新一代自主智能体 —— 融合五大前沿开源项目精华",
+    description="新一代自主智能体 —— 融合五大前沿开源项目精华，专为 OpenClaw 设计",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="https://github.com/brad19457416-maker/nova-agent",
