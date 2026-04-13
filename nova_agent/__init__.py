@@ -15,6 +15,7 @@ Nova Agent - 新一代自主智能体
 __version__ = "0.3.0"
 __author__ = "Nova Agent Team"
 
-from .agent.nova_agent import NovaAgent
+from .config import ConfigManager
+from .main import NovaAgentCLI
 
-__all__ = ["NovaAgent", "__version__", "__author__"]
+__all__ = ["ConfigManager", "NovaAgentCLI", "__version__", "__author__"]
