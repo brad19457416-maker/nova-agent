@@ -5,11 +5,7 @@ with open("README.md", "r", encoding="utf-8") as fh:
 
 setup(
     name="nova-agent",
-<<<<<<< HEAD
     version="0.3.0",
-=======
-    version="0.2.0",
->>>>>>> fffb151 (P0 improvements: add .gitignore, GitHub Actions CI, bump version to v0.2.0)
     author="Nova Agent Team",
     description="新一代自主智能体 —— 融合五大前沿开源项目精华，专为 OpenClaw 设计",
     long_description=long_description,
@@ -37,6 +33,8 @@ setup(
         "pyyaml>=6.0",
         "docker>=6.0.0",
         "requests>=2.26.0",
+        "numpy>=1.24.0",
+        "scikit-learn>=1.2.0",
     ],
     extras_require={
         "dev": [
@@ -47,8 +45,23 @@ setup(
             "mypy>=1.0",
             "build>=0.10",
             "twine>=4.0",
+            "aiosqlite>=0.17.0",
+        ],
+        "docs": [
+            "sphinx>=5.0",
+            "sphinx-rtd-theme>=1.0",
         ],
     },
     include_package_data=True,
     zip_safe=False,
+    keywords=[
+        "ai",
+        "agent",
+        "llm",
+        "openclaw",
+        "memory",
+        "reasoning",
+        "autonomous",
+        "hgarn",
+    ],
 )

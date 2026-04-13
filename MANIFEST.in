@@ -1,0 +1,25 @@
+# Include README and LICENSE
+include README.md
+include LICENSE
+include pyproject.toml
+
+# Include config files
+include nova_agent/**/*.yaml
+include nova_agent/**/*.yml
+include nova_agent/**/*.json
+
+# Include skill data
+include nova_agent/skills/children_book_generator/configs/*.json
+
+# Exclude cache and bytecode
+exclude *.pyc
+exclude *.pyo
+exclude __pycache__
+exclude *.egg-info
+exclude .git
+exclude .github
+exclude .pytest_cache
+exclude .coverage
+exclude htmlcov
+exclude build
+exclude dist
